@@ -1,0 +1,95 @@
+﻿<fwk:ObservableWindow
+    x:Class="Helper.EncontrarRegexMatch"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:fwk="clr-namespace:Framework.UI;assembly=Framework"
+    xmlns:avalon="clr-namespace:ICSharpCode.AvalonEdit;assembly=ICSharpCode.AvalonEdit"
+    Title="Encontrar Match" WindowStartupLocation="CenterScreen" Height="600" Width="1100"
+    MinWidth="330" MinHeight="270">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="108" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="46" />
+        </Grid.RowDefinitions>
+
+        <Grid x:Name="Header" Grid.Column="0" Grid.Row="0" VerticalAlignment="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="60" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="85" />
+                <ColumnDefinition Width="85" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="36" />
+                <RowDefinition Height="36" />
+                <RowDefinition Height="36" />
+            </Grid.RowDefinitions>
+            <Label      Grid.Row="0" Grid.Column="0" x:Name="lblPath"    Margin="10,10,0,0"  Height="26" Width="50" Content="Archivo"   HorizontalAlignment="Left" VerticalAlignment="Top" />
+            <TextBox    Grid.Row="0" Grid.Column="1" x:Name="txtPath"    Margin="10,10,10,0" Height="20"            TextWrapping="Wrap" VerticalAlignment="Top"    KeyUp="TxtPath_KeyUp" />
+            <Button     Grid.Row="0" Grid.Column="2" x:Name="btnPath"    Margin="0,10,0,0"               Width="75" Content="Examinar"  HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Click="BtnPath_Click" />
+            <Button     Grid.Row="0" Grid.Column="3" x:Name="btnLoad"    Margin="0,10,0,0"               Width="75" Content="ReLoad"    HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Click="BtnReload_Click" />
+            <Label      Grid.Row="1" Grid.Column="0" x:Name="lblPattern" Margin="10,10,0,0"  Height="26" Width="50" Content="Reg. Ex."  HorizontalAlignment="Left" VerticalAlignment="Top" />
+            <TextBox    Grid.Row="1" Grid.Column="1" x:Name="txtPattern" Margin="10,10,10,0" Height="20"            TextWrapping="Wrap" VerticalAlignment="Top"    KeyUp="TxtPattern_KeyUp" Grid.ColumnSpan="3" />
+
+            <!-- En la tercer fila quedan pendientes poner CheckBox para CaseInsensitive, Multiline, Global, y otros -->
+            <Grid Grid.ColumnSpan="3" Grid.Row="2" Grid.Column="0" Margin="15,0,15,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <CheckBox Margin="5,0,5,0" Grid.Column="0" Grid.Row="0" x:Name="chkIgnoreCase">Ignore Case</CheckBox>
+                <CheckBox Margin="5,0,5,0" Grid.Column="1" Grid.Row="0" x:Name="chkMultiline">Multiline</CheckBox>
+                <CheckBox Margin="5,0,5,0" Grid.Column="2" Grid.Row="0" x:Name="chkSingleline">Singleline</CheckBox>
+                <CheckBox Margin="5,0,5,0" Grid.Column="3" Grid.Row="0" x:Name="chkIgnorePatternWhitespace">Ignore Pattern Whitespace</CheckBox>
+                <CheckBox Margin="5,0,5,0" Grid.Column="4" Grid.Row="0" x:Name="chkRightToLeft">Right To Left</CheckBox>
+                <CheckBox Margin="5,0,5,0" Grid.Column="5" Grid.Row="0" x:Name="chkCultureInvariant">Culture Invariant</CheckBox>
+                <Button Margin="4" Grid.Column="6" Grid.Row="0" Click="ShowCapturesTreeButton_Click">Show Tree</Button>
+                <Button Margin="4" Grid.Column="7" Grid.Row="0" Click="CopyCapturesToTemplaterButton_Click">Make Template</Button>
+            </Grid>
+        </Grid>
+
+        <Grid x:Name="Body" Grid.Column="0" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200*" />
+                <ColumnDefinition Width="200*" />
+            </Grid.ColumnDefinitions>
+
+            <avalon:TextEditor
+                x:Name="txtText"
+                Grid.Row="0"
+                Grid.Column="0"
+                BorderBrush="DimGray"
+                BorderThickness="1"
+                Margin="10,10,5,0"
+                Padding="10,5,5,5" />
+
+            <GridSplitter Grid.Row="0" Grid.Column="0" Width="5" VerticalAlignment="Stretch" />
+
+            <avalon:TextEditor
+                Grid.Row="0" Grid.Column="1" Margin="5,10,10,0"
+                x:Name="txtResult"
+                BorderBrush="DimGray"
+                BorderThickness="1" Padding="10,5,5,5"
+                IsReadOnly="True" />
+            <TreeView BorderBrush="DimGray" BorderThickness="1" Padding="10,5,5,5" Grid.Row="0" Grid.Column="1" Margin="5,10,10,0" x:Name="treeCaptures"  Visibility="Hidden" />
+        </Grid>
+
+        <Grid x:Name="Footer" Grid.Column="0" Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="85" />
+                <ColumnDefinition Width="85" />
+            </Grid.ColumnDefinitions>
+            <Button Grid.Row="0" Grid.Column="1" x:Name="btnMatch" Margin="0,10,0,0" Width="75" Content="Match"  HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Click="BtnMatch_Click" />
+            <Button Grid.Row="0" Grid.Column="2" x:Name="btnCopy"  Margin="0,10,0,0" Width="75" Content="Copiar" HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Center" Click="BtnCopy_Click" />
+        </Grid>
+    </Grid>
+</fwk:ObservableWindow>

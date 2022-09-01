@@ -1,0 +1,24 @@
+﻿<Controls:MetroWindow x:Class="MailSpy.ShowBody"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:avalon="http://icsharpcode.net/sharpdevelop/avalonedit"
+        Title="ShowBody"
+        Icon="pack://application:,,,/mailspy.png"
+        HorizontalAlignment="Center" VerticalAlignment="Center"
+        PreviewKeyDown="Window_PreviewKeyDown">
+
+    <Grid>
+        <Controls:MetroTabControl Name="TabContainer" BorderBrush="DarkBlue" BorderThickness="1">
+            <Controls:MetroTabItem Header="HTML">
+                <WebBrowser Name="Webby" Margin="8,8,8,8" ScrollViewer.CanContentScroll="True" />
+            </Controls:MetroTabItem>
+            <Controls:MetroTabItem Header="Source">
+                <avalon:TextEditor IsReadOnly="True" Name="Texty" Margin="8,8,8,8" SyntaxHighlighting="HTML" BorderBrush="Azure" BorderThickness="1" ScrollViewer.VerticalScrollBarVisibility="Visible" />
+            </Controls:MetroTabItem>
+            <Controls:MetroTabItem Header="Attachments">
+                <ListBox ItemsSource="{Binding Path=Attachments, Mode=OneWay}" x:Name="AttachmentsList"/>
+            </Controls:MetroTabItem>
+        </Controls:MetroTabControl>
+    </Grid>
+</Controls:MetroWindow>

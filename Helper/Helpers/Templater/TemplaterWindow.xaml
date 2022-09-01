@@ -1,0 +1,44 @@
+﻿<Metro:MetroWindow
+    x:Class="Helper.TemplaterWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:Metro="http://metro.mahapps.com/winfx/xaml/controls"
+    xmlns:avalon="clr-namespace:ICSharpCode.AvalonEdit;assembly=ICSharpCode.AvalonEdit"
+    Title="Templater" WindowStartupLocation="CenterScreen" Height="450" Width="800">
+
+    <Grid Margin="8">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="48" />
+        </Grid.RowDefinitions>
+
+        <avalon:TextEditor
+            x:Name="txtTemplate"
+            SyntaxHighlighting="C#"
+            Grid.Row="0" Grid.Column="0"
+            BorderBrush="Azure" BorderThickness="1" />
+
+        <avalon:TextEditor
+            x:Name="txtVariables"
+            SyntaxHighlighting="JavaScript"
+            Grid.Row="0" Grid.Column="2"
+            BorderBrush="Azure" BorderThickness="1" />
+
+        <avalon:TextEditor
+            x:Name="txtResult"
+            SyntaxHighlighting="C#"
+            Grid.Row="1" Grid.ColumnSpan="2"
+            BorderBrush="Azure" BorderThickness="1" />
+
+        <WrapPanel Grid.Row="2">
+            <Button x:Name="btnGenerar" Click="BtnGenerar_Click">Generar</Button>
+            <Button x:Name="btnFormatJson" Click="BtnFormatJson_Click">Format</Button>
+        </WrapPanel>
+    </Grid>
+</Metro:MetroWindow>

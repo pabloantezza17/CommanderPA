@@ -1,0 +1,58 @@
+﻿<fwk:ObservableWindow x:Class="Helper.EncontrarParameters"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:fwk="clr-namespace:Framework.UI;assembly=Framework"
+        mc:Ignorable="d"
+        TitleCaps="False"
+        Title="Encontrar Parametros" Height="350" Width="700"
+        WindowTransitionsEnabled="True"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="36" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="125" />
+            <ColumnDefinition Width="100" />
+            <ColumnDefinition Width="125" />
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Orientation="Horizontal" Margin="5"  Grid.Row="0" Grid.ColumnSpan="5">
+            <Label Width="100" Grid.Column="1">Token</Label>
+            <TextBox x:Name="txtParameterToken" Width="185" Grid.Column="2" Grid.ColumnSpan="2" />
+            <Button Click="BtnBuscar_Click" IsDefault="True">Buscar</Button>
+        </StackPanel>
+
+        <DataGrid Margin="8" Grid.Row="1" Grid.ColumnSpan="5"
+                      HorizontalContentAlignment="Center"
+                      x:Name="parametersDataGrid"
+                      SelectionUnit="FullRow"
+                      IsReadOnly="True"
+                      VerticalAlignment="Stretch"
+                      VerticalScrollBarVisibility="Auto"
+                      ScrollViewer.CanContentScroll="True"
+                      AutoGenerateColumns="False"
+                      ItemsSource="{Binding Path=Parameters, Mode=OneWay}"
+                      SelectedItem="{Binding Path=SelectedRow, Mode=TwoWay}"
+                      SelectionMode="Single">
+            <DataGrid.ContextMenu>
+                <ContextMenu Visibility="{Binding Path=MuestraMenuContextual, Mode=OneWay}">
+                    <MenuItem Header="{Binding Path=CopyTokenMenuHeader, Mode=OneWay}" Command="{Binding Path=CopyTokenCommand}" />
+                    <MenuItem Header="{Binding Path=CopyFunctionMenuHeader, Mode=OneWay}" Command="{Binding Path=CopyFunctionCommand}" />
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Token" Width="400" Binding="{Binding Token}" />
+                <DataGridTextColumn Header="Value" Width="100" Binding="{Binding Value}" />
+                <DataGridTextColumn Header="Description" Width="300" Binding="{Binding Description}" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</fwk:ObservableWindow>

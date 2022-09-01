@@ -1,0 +1,23 @@
+﻿<fwk:ObservableWindow
+        x:Class="Helper.HelperWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:fwk="clr-namespace:Framework.UI;assembly=Framework"
+        mc:Ignorable="d"
+        TitleCaps="False"
+        ResizeMode="CanMinimize"
+        Title="Helper" Height="350" Width="250"
+        WindowTransitionsEnabled="False"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <StackPanel Orientation="Vertical">
+            <Button Click="Btn_EncontrarAsociacionEntreEmpresas_Click">Encontrar empresas asociadas</Button>
+            <Button Click="Btn_EncontrarParameters_Click">Encontrar Parameters</Button>
+            <Button Click="Btn_EncontrarRegexMatch_Click">Encontrar Coincidencias (Reg. Ex.)</Button>
+            <Button Click="Btn_Templater_Click">Templater</Button>
+            <Button Click="Btn_MailSpy_Click">MailSpy</Button>
+        </StackPanel>
+    </Grid>
+</fwk:ObservableWindow>
