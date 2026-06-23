@@ -27,7 +27,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel Orientation="Vertical">
-            <Button x:Name="UpdateButton" Content="Update" Visibility="Hidden"  Click="UpdateButton_Click" />
+            <!--<Button x:Name="UpdateButton" Content="Update" Visibility="Hidden"  Click="UpdateButton_Click" />-->
 
 
             <ComboBox

@@ -150,7 +150,7 @@ namespace MailSpy
         {
             var reader = new DataReader(Configuration.Default.ConnectionString);
 
-            var script = String.Format(File.ReadAllText(".\\Scripts\\LoadMailStates.sql"), "Dev_FyoTrade");
+            var script = String.Format(File.ReadAllText(".\\Scripts\\LoadMailStates.sql"), "Dev_FyoTrade", "Evo_FyoTrade");
 
             return reader.Read<Entity>(script);
         }

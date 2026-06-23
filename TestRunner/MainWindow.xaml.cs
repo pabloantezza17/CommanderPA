@@ -25,17 +25,15 @@ namespace TestRunner
         public MainWindow()
         {
             InitializeComponent();
-
+             
             this.cboRama.ItemsSource = new List<String>
             {
                 "dev",
-                "main",
-                "next",
                 "live",
-                "R4"
+                "R18"
             };
 
-            this.cboRama.SelectedIndex = 2;
+            this.cboRama.SelectedIndex = 0;
 
             this.UpdateTestList();
 
@@ -99,7 +97,7 @@ namespace TestRunner
 
         private void UpdateTestList()
         {
-            this.path = String.Format(Settings.Default.ProjectPath + @"\{0}\bin", cboRama.SelectedValue);
+           this.path = String.Format(Settings.Default.ProjectPath + @"\{0}\bin", cboRama.SelectedValue);
 
             this.Tests = new List<TestView>();
 

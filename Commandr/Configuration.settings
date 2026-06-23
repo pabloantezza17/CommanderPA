@@ -2,12 +2,6 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Commandr" GeneratedClassName="Configuration">
   <Profiles />
   <Settings>
-    <Setting Name="InitialConnectionString" Type="System.String" Scope="User">
-      <Value Profile="(Default)">data source=COA043;integrated security=True;MultipleActiveResultSets=True;</Value>
-    </Setting>
-    <Setting Name="LocalConnectionString" Type="System.String" Scope="User">
-      <Value Profile="(Default)">data source=localhost;integrated security=True;MultipleActiveResultSets=True;</Value>
-    </Setting>
     <Setting Name="InstallationPath" Type="System.String" Scope="User">
       <Value Profile="(Default)">\\MAXIMILIANOSALD\CommandrPackages</Value>
     </Setting>
@@ -18,7 +12,13 @@
       <Value Profile="(Default)">;;;</Value>
     </Setting>
     <Setting Name="ProjectPath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\Projects\FyO\Corretaje</Value>
+      <Value Profile="(Default)">C:\Project\FyO\Corretaje</Value>
+    </Setting>
+    <Setting Name="InitialConnectionString" Type="System.String" Scope="User">
+      <Value Profile="(Default)">data source=4P020\SQL19;integrated security=True;MultipleActiveResultSets=True;</Value>
+    </Setting>
+    <Setting Name="LocalConnectionString" Type="System.String" Scope="User">
+      <Value Profile="(Default)">data source=4P020\SQL19;integrated security=True;MultipleActiveResultSets=True;</Value>
     </Setting>
   </Settings>
 </SettingsFile>

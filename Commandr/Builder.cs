@@ -7,7 +7,7 @@ namespace Commandr
 {
     public class Builder
     {
-        private readonly String buildString = "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Enterprise\\MSBuild\\Current\\Bin\\MSBuild.exe\" \"{0}\"  /v:q /m /nr:false /p:WarningLevel=0;Configuration=Debug;Optimize=false /clp:ErrorsOnly /nologo";
+        private readonly String buildString = "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe\" \"{0}\"  /v:q /m /nr:false /p:WarningLevel=0;Configuration=Debug;Optimize=false /clp:ErrorsOnly /nologo";
 
         private String tempFileName;
 

@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="ConnectionString" Type="System.String" Scope="User">
-      <Value Profile="(Default)">data source=coa043;integrated security=True;MultipleActiveResultSets=True;</Value>
+      <Value Profile="(Default)">data source=4P020\SQL19;integrated security=True;MultipleActiveResultSets=True;</Value>
     </Setting>
   </Settings>
 </SettingsFile>

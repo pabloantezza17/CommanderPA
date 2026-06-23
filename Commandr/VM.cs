@@ -173,7 +173,7 @@ namespace Commandr
         {
             get
             {
-                return new[] { "dev", "live", "main", "next", "R4" };
+                return new[] { "dev", "live", "R18" };
             }
         }
 

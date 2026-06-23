@@ -65,8 +65,9 @@ namespace Commandr.DataBaseChanger
                     Configuration.Default.ProjectPath + @"\{0}\src\FyO.Cor\FyO.Cor.Fac.Services.Host.IIS\ConnectionStrings.config",
                     Configuration.Default.ProjectPath + @"\{0}\src\FyO.Cor\FyO.Cor.Eai.Services.Host.IIS\ConnectionStrings.config",
                     Configuration.Default.ProjectPath + @"\{0}\src\FyO.Cor\FyO.Cor.Log.Services.Host.IIS\ConnectionStrings.config",
+                    Configuration.Default.ProjectPath + @"\{0}\src\FyO.Cor\FyO.Cor.Int.Services.Host.IIS\ConnectionStrings.config",
                     Configuration.Default.ProjectPath + @"\{0}\bin\ConnectionStrings.config"
-                }.Select(a => String.Format(a, this.Branch));                                        
+                }.Select(a => String.Format(a, this.Branch));
             }
         }
 
@@ -89,13 +90,13 @@ namespace Commandr.DataBaseChanger
 
         private void DataBaseList_MouseDoubleClick(Object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            this.ChangeDB(@"COA043", this.SelectedDataBase);
+            this.ChangeDB(@"4P020\SQL19", this.SelectedDataBase);
         }
 
         private void ChangeDB(String hostname, String catalog, Boolean removeUser = false)
-         {
+        {
             try
-             {
+            {
                 var connectionStrings = File.ReadAllText("ConnectionStrings.xml");
 
                 connectionStrings = connectionStrings.Replace("HostNameDataBase", hostname);

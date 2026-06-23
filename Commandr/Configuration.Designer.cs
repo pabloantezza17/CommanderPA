@@ -12,7 +12,7 @@ namespace Commandr {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.0.3.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.14.0.0")]
     internal sealed partial class Configuration : global::System.Configuration.ApplicationSettingsBase {
         
         private static Configuration defaultInstance = ((Configuration)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Configuration())));
@@ -20,30 +20,6 @@ namespace Commandr {
         public static Configuration Default {
             get {
                 return defaultInstance;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("data source=COA043;integrated security=True;MultipleActiveResultSets=True;")]
-        public string InitialConnectionString {
-            get {
-                return ((string)(this["InitialConnectionString"]));
-            }
-            set {
-                this["InitialConnectionString"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("data source=localhost;integrated security=True;MultipleActiveResultSets=True;")]
-        public string LocalConnectionString {
-            get {
-                return ((string)(this["LocalConnectionString"]));
-            }
-            set {
-                this["LocalConnectionString"] = value;
             }
         }
         
@@ -85,13 +61,37 @@ namespace Commandr {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Projects\\FyO\\Corretaje")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Project\\FyO\\Corretaje")]
         public string ProjectPath {
             get {
                 return ((string)(this["ProjectPath"]));
             }
             set {
                 this["ProjectPath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("data source=4P020\\SQL19;integrated security=True;MultipleActiveResultSets=True;")]
+        public string InitialConnectionString {
+            get {
+                return ((string)(this["InitialConnectionString"]));
+            }
+            set {
+                this["InitialConnectionString"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("data source=4P020\\SQL19;integrated security=True;MultipleActiveResultSets=True;")]
+        public string LocalConnectionString {
+            get {
+                return ((string)(this["LocalConnectionString"]));
+            }
+            set {
+                this["LocalConnectionString"] = value;
             }
         }
     }

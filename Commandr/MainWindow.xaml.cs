@@ -25,7 +25,7 @@ namespace Commandr
 
             this.DataContext = this.vm = new VM();
 
-            this.CheckForUpdates();
+            //this.CheckForUpdates();
         }
 
         protected override void OnClosed(EventArgs e)
@@ -100,13 +100,13 @@ namespace Commandr
             base.OnKeyDown(e);
         }
 
-        private void CheckForUpdates()
-        {
-            if (Checker.NeedsUpdate())
-                this.UpdateButton.Visibility = System.Windows.Visibility.Visible;
-            else
-                this.UpdateButton.Visibility = System.Windows.Visibility.Collapsed;
-        }
+        //private void CheckForUpdates()
+        //{
+        //    if (Checker.NeedsUpdate())
+        //        this.UpdateButton.Visibility = System.Windows.Visibility.Visible;
+        //    else
+        //        this.UpdateButton.Visibility = System.Windows.Visibility.Collapsed;
+        //}
 
         private void UpdateButton_Click(Object sender, System.Windows.RoutedEventArgs e)
         {
