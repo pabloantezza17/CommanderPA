@@ -14,6 +14,7 @@ echo Getting latest version on all...
 echo.
 
 tf get $/Corretaje/Dev $/Corretaje/Live $/Corretaje/R18 /recursive
+
 REM Compile & Update
 
 cd "%2\TestRunner\"

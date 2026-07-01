@@ -58,5 +58,17 @@ namespace TestRunner {
                 this["MSTest"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("6")]
+        public int MaxParallelTests {
+            get {
+                return ((int)(this["MaxParallelTests"]));
+            }
+            set {
+                this["MaxParallelTests"] = value;
+            }
+        }
     }
 }

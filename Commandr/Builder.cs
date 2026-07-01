@@ -1,92 +1,108 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
-using Framework;
+using System.Threading;
+using Commandr.BuildRunner;
 
 namespace Commandr
 {
     public class Builder
     {
-        private readonly String buildString = "\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe\" \"{0}\"  /v:q /m /nr:false /p:WarningLevel=0;Configuration=Debug;Optimize=false /clp:ErrorsOnly /nologo";
+        #region Members
 
-        private String tempFileName;
+        private const String MSBuildPath =
+            @"C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe";
+
+        private const String buildArguments =
+            "\"{0}\" /v:q /m /nr:false /p:WarningLevel=0;Configuration=Debug;Optimize=false /clp:ErrorsOnly /nologo";
+
+        private const String schedulerService = "FyOCorSchedulerWinService";
+
+        #endregion
+
+        #region Methods
 
         public void Build(FileCommand fileCommand, String name, String currentBranch)
         {
-            this.tempFileName = Utils.GetTempFilePathWithExtension(".bat");
-            StreamWriter writer = new StreamWriter(this.tempFileName);
+            String solutionPath = Path.GetFullPath(String.Format(fileCommand.Command, currentBranch));
 
-            writer.WriteLine(@"
-@echo off
-setlocal
-
-set STARTTIME=%TIME%
-
-echo -------------------------------------------
-echo Deteniendo FyOCorSchedulerWinService
-echo -------------------------------------------
-net stop FyOCorSchedulerWinService 2>nul
-echo.
-");
-
-            //if (this.modules.Count(m => m.Value.Enabled) == 0)
-            //{
-            //    MessageBox.Show("There are no enabled modules to build!", "Build Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            //    return;
-            //}
-
-            //foreach (var module in this.modules.Where(m => m.Value.Enabled))
-            //{
-            //    writer.WriteLine("echo -------------------------------------------");
-            //    writer.WriteLine("echo : : Building: " + module.Value.Name);
-            //    writer.WriteLine("echo -------------------------------------------");
-            //    writer.WriteLine(String.Format(this.buildString, module.Value.Data));
-            //}
-
-            writer.WriteLine("echo -------------------------------------------");
-            writer.WriteLine("echo : : Building: " + name);
-            writer.WriteLine("echo -------------------------------------------");
-            writer.WriteLine(String.Format(this.buildString, Path.GetFullPath(String.Format(fileCommand.Command, currentBranch))));
-
-            writer.WriteLine(@"
-            echo Started: %STARTTIME%
-            set ENDTIME=%TIME%
-            echo Ended: %ENDTIME%
-
-            rem convert STARTTIME and ENDTIME to centiseconds
-            set /A STARTTIME=(1%STARTTIME:~0,2%-100)*360000 + (1%STARTTIME:~3,2%-100)*6000 + (1%STARTTIME:~6,2%-100)*100 + (1%STARTTIME:~9,2%-100)
-            set /A ENDTIME=(1%ENDTIME:~0,2%-100)*360000 + (1%ENDTIME:~3,2%-100)*6000 + (1%ENDTIME:~6,2%-100)*100 + (1%ENDTIME:~9,2%-100)
-
-            set /A DURATION=%ENDTIME%-%STARTTIME%
-            set /A DURATIONH=%DURATION% / 360000
-            set /A DURATIONM=(%DURATION% - %DURATIONH%*360000) / 6000
-            set /A DURATIONS=(%DURATION% - %DURATIONH%*360000 - %DURATIONM%*6000) / 100
-
-            echo Elapsed: %DURATIONH%h %DURATIONM%m %DURATIONS%s
-
-");
-
-            writer.WriteLine("pause");
-
-            writer.Flush();
-            writer.Close();
-
-            Process proc = new Process()
+            BuildVM vm = new BuildVM
             {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = this.tempFileName
-                }
+                SolutionName = name,
+                Branch = currentBranch
             };
 
-            proc.Start();
+            BuildWindow window = new BuildWindow(vm);
+            window.Show();
 
-            proc.Exited += Proc_Exited;
+            new Thread(() => this.RunBuild(vm, solutionPath)) { IsBackground = true }.Start();
         }
 
-        private void Proc_Exited(Object sender, EventArgs e)
+        private void RunBuild(BuildVM vm, String solutionPath)
         {
-            File.Delete(tempFileName);
+            vm.Stopwatch.Start();
+
+            this.StopScheduler();
+
+            try
+            {
+                Process proc = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = MSBuildPath,
+                        Arguments = String.Format(buildArguments, solutionPath),
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true
+                    }
+                };
+
+                // Lectura asíncrona de ambos flujos para evitar deadlocks por buffers llenos.
+                proc.OutputDataReceived += (s, e) => { if (e.Data != null) vm.AddLine(e.Data); };
+                proc.ErrorDataReceived += (s, e) => { if (e.Data != null) vm.AddLine(e.Data); };
+
+                proc.Start();
+                proc.BeginOutputReadLine();
+                proc.BeginErrorReadLine();
+                proc.WaitForExit();
+
+                vm.Finish(proc.ExitCode == 0);
+            }
+            catch (Exception ex)
+            {
+                vm.AddLine("No se pudo iniciar la compilación: " + ex.Message);
+                vm.Finish(false);
+            }
         }
+
+        private void StopScheduler()
+        {
+            try
+            {
+                Process proc = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = "net",
+                        Arguments = "stop " + schedulerService,
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true
+                    }
+                };
+
+                proc.Start();
+                proc.WaitForExit();
+            }
+            catch (Exception)
+            {
+                // El servicio puede no existir o requerir permisos: no bloqueamos el build por eso.
+            }
+        }
+
+        #endregion
     }
 }

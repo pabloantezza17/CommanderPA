@@ -97,11 +97,17 @@ namespace TestRunner
 
         private void UpdateTestList()
         {
-           this.path = String.Format(Settings.Default.ProjectPath + @"\{0}\bin", cboRama.SelectedValue);
+            this.path = String.Format(Settings.Default.ProjectPath + @"\{0}", cboRama.SelectedValue);
 
             this.Tests = new List<TestView>();
 
-            var testFiles = Directory.GetFiles(this.path, "FyO.*.Tests.*.dll", SearchOption.AllDirectories).Where(s => !s.Contains("FyO.Cor.Db"));
+            var testFiles = Directory.GetFiles(this.path, "*.Tests*.dll", SearchOption.AllDirectories)
+                .Where(s => !s.Contains(@"\obj\"))
+                .Where(s => !s.Contains("FyO.Cor.Db"))
+                .Where(s => (Path.GetFileName(s).StartsWith("FyO.") || Path.GetFileName(s).StartsWith("Neoris."))
+                            && (Path.GetFileName(s).EndsWith(".Tests.Unit.dll") || Path.GetFileName(s).EndsWith(".Tests.Integration.dll")))
+                .GroupBy(s => Path.GetFileName(s))
+                .Select(g => g.OrderBy(s => s.Contains(@"\src\") ? 1 : 0).First());
 
             foreach (String file in testFiles)
             {

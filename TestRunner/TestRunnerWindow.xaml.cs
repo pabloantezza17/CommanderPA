@@ -59,7 +59,33 @@ namespace TestRunner
             if (test == null)
                 return;
 
-            MessageBox.Show(test.Description, test.State.ToString() + ": " + test.Location);
+            // Copio clase + test al portapapeles y muestro el nombre crudo para poder rastrearlo.
+            String classAndTest = test.ClassName + "." + test.TestName;
+            this.CopyToClipboard(classAndTest);
+
+            MessageBox.Show(
+                test.FullName + "\n\n(Copiado al portapapeles: " + classAndTest + ")",
+                test.State.ToString() + ": " + test.Location);
+        }
+
+        private void CopyToClipboard(String text)
+        {
+            if (String.IsNullOrEmpty(text))
+                return;
+
+            try
+            {
+                Clipboard.SetText(text);
+            }
+            catch (Exception)
+            {
+                // El portapapeles puede estar ocupado por otro proceso; no interrumpimos por eso.
+            }
+        }
+
+        private static TestEntity EntityFrom(Object sender)
+        {
+            return (sender as FrameworkElement)?.DataContext as TestEntity;
         }
 
         public void RunTests(List<TestView> tests)
@@ -95,6 +121,34 @@ namespace TestRunner
             ListBox list = sender as ListBox;
             if (e.Key == Key.Enter)
                 this.ShowTestInfo(list.SelectedItem as TestEntity);
+        }
+
+        private void CopyClassAndTest_Click(Object sender, RoutedEventArgs e)
+        {
+            TestEntity test = EntityFrom(sender);
+            if (test != null)
+                this.CopyToClipboard(test.ClassName + "." + test.TestName);
+        }
+
+        private void CopyClass_Click(Object sender, RoutedEventArgs e)
+        {
+            TestEntity test = EntityFrom(sender);
+            if (test != null)
+                this.CopyToClipboard(test.ClassName);
+        }
+
+        private void CopyTest_Click(Object sender, RoutedEventArgs e)
+        {
+            TestEntity test = EntityFrom(sender);
+            if (test != null)
+                this.CopyToClipboard(test.TestName);
+        }
+
+        private void CopyFullName_Click(Object sender, RoutedEventArgs e)
+        {
+            TestEntity test = EntityFrom(sender);
+            if (test != null)
+                this.CopyToClipboard(test.FullName);
         }
 
         #endregion

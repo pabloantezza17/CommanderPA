@@ -142,7 +142,7 @@ namespace Commandr.DataBaseChanger
             String catalog = "local_Corretaje";
 
             if (InputBox.Show("ConnectionString", "Input the custom hostname:", ref hostname) == System.Windows.Forms.DialogResult.OK
-                && InputBox.Show("ConnectionString", "Input the custom hostname:", ref catalog) == System.Windows.Forms.DialogResult.OK)
+                && InputBox.Show("ConnectionString", "Input the database name:", ref catalog) == System.Windows.Forms.DialogResult.OK)
                 this.ChangeDB(hostname, catalog, true);
         }
 

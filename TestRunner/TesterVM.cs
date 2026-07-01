@@ -18,10 +18,11 @@ namespace TestRunner
 
         private ObservableCollection<TestEntity> _failed;
         private ObservableCollection<TestEntity> _integration;
+        private ObservableCollection<TestEntity> _fwk;
         private Stopwatch _stopwatch;
         private StringBuilder Builder;
 
-        #endregion
+        #endregion Members
 
         #region Constructor
 
@@ -41,7 +42,7 @@ namespace TestRunner
             this.ColorRed = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#EB3B3B"));
         }
 
-        #endregion
+        #endregion Constructor
 
         #region Properties
 
@@ -125,6 +126,14 @@ namespace TestRunner
             }
         }
 
+        public String CantFwk
+        {
+            get
+            {
+                return "FWK (" + this.FwkTestsCollection.Count + ")";
+            }
+        }
+
         public String Title
         {
             get
@@ -132,7 +141,7 @@ namespace TestRunner
                 String message = this.Rama + " - " + this.AllCant;
 
                 if (this.Stopwatch.IsRunning || this.Stopwatch.ElapsedMilliseconds > 0)
-                    message += ". Elapsed: " + this.ElapsedTime + "s";
+                    message += ". Tiempo: " + this.ElapsedTime + "s";
 
                 return message;
             }
@@ -142,7 +151,7 @@ namespace TestRunner
         {
             get
             {
-                return "Tests ran: " + (this.PassedTestsCounter + this.FailedTestsCollection.Count).ToString();
+                return "Tests Totales: " + (this.PassedTestsCounter + this.FailedTestsCollection.Count + this.FwkTestsCollection.Count).ToString();
             }
         }
 
@@ -165,6 +174,17 @@ namespace TestRunner
                     this._integration = new ObservableCollection<TestEntity>();
 
                 return this._integration;
+            }
+        }
+
+        public ObservableCollection<TestEntity> FwkTestsCollection
+        {
+            get
+            {
+                if (this._fwk == null)
+                    this._fwk = new ObservableCollection<TestEntity>();
+
+                return this._fwk;
             }
         }
 
@@ -193,7 +213,7 @@ namespace TestRunner
         private Brush ColorRed { get; set; }
         private Brush ColorYellow { get; set; }
 
-        #endregion
+        #endregion Properties
 
         #region Methods
 
@@ -225,6 +245,8 @@ namespace TestRunner
                 this.RaisePropertyChangedEvent("PassedTestCounterColor");
                 this.RaisePropertyChangedEvent("FailedTestsCollection");
                 this.RaisePropertyChangedEvent("IntegrationTestsCollection");
+                this.RaisePropertyChangedEvent("CantFwk");
+                this.RaisePropertyChangedEvent("FwkTestsCollection");
             }
 
             if (this.Count < 100)
@@ -240,16 +262,33 @@ namespace TestRunner
             this.RaiseProps();
         }
 
-        public Boolean AddLine(String line)
+        public Boolean AddLine(String line, Boolean esFwk, Boolean esIntegracion)
         {
             this.Builder.AppendLine(line);
 
-            if (line.Contains("Integration"))
+            Boolean esResultado = line.StartsWith("Passed") || line.StartsWith("Failed");
+
+            if (esFwk)
             {
-                this.InvokeUpdateList(this.IntegrationTestsCollection, line);
-                return true;
+                if (esResultado)
+                {
+                    this.InvokeUpdateList(this.FwkTestsCollection, line);
+                    return true;
+                }
+                return false;
             }
-            else if (line.StartsWith("Passed"))
+
+            if (esIntegracion)
+            {
+                if (esResultado)
+                {
+                    this.InvokeUpdateList(this.IntegrationTestsCollection, line);
+                    return true;
+                }
+                return false;
+            }
+
+            if (line.StartsWith("Passed"))
             {
                 Application.Current.Dispatcher.BeginInvoke(new Action(() => this.PassedTestsCounter++));
                 this.RaiseProps();
@@ -304,6 +343,6 @@ namespace TestRunner
             Settings.Default.Save();
         }
 
-        #endregion
+        #endregion Methods
     }
 }

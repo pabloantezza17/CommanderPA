@@ -45,9 +45,43 @@ namespace Commandr
 
         protected override void OnGotFocus(System.Windows.RoutedEventArgs e)
         {
-            this.CommandsList.Focus();
+            this.SearchBox.Focus();
+            this.SearchBox.SelectAll();
 
             base.OnGotFocus(e);
+        }
+
+        private void SearchBox_KeyDown(Object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.Down)
+            {
+                this.FocusList();
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Enter)
+            {
+                if (this.CommandsList.SelectedItem == null && this.CommandsList.Items.Count > 0)
+                    this.CommandsList.SelectedItem = this.CommandsList.Items[0];
+
+                this.DoAction();
+                e.Handled = true;
+            }
+        }
+
+        private void FocusList()
+        {
+            if (this.CommandsList.Items.Count == 0) return;
+
+            if (this.CommandsList.SelectedIndex < 0)
+                this.CommandsList.SelectedIndex = 0;
+
+            this.CommandsList.Focus();
+
+            var item = this.CommandsList.ItemContainerGenerator
+                .ContainerFromIndex(this.CommandsList.SelectedIndex) as System.Windows.Controls.ListBoxItem;
+
+            if (item != null)
+                item.Focus();
         }
 
         private void CommandsList_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -95,7 +129,17 @@ namespace Commandr
         protected override void OnKeyDown(System.Windows.Input.KeyEventArgs e)
         {
             if (e.Key == Key.Escape)
-                this.Hide();
+            {
+                if (!String.IsNullOrEmpty(this.SearchBox.Text))
+                {
+                    this.SearchBox.Clear();
+                    this.SearchBox.Focus();
+                }
+                else
+                {
+                    this.Hide();
+                }
+            }
 
             base.OnKeyDown(e);
         }
@@ -122,6 +166,14 @@ namespace Commandr
             {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void ManageBranchesButton_Click(Object sender, System.Windows.RoutedEventArgs e)
+        {
+            var manager = new BranchManager { Owner = this };
+
+            if (manager.ShowDialog() == true)
+                this.vm.RefreshBranches();
         }
 
         private void Settings_Click(object sender, System.Windows.RoutedEventArgs e)

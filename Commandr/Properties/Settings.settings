@@ -5,5 +5,8 @@
     <Setting Name="CurrentBranch" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="Branches" Type="System.String" Scope="User">
+      <Value Profile="(Default)">dev,live,R18,R17</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

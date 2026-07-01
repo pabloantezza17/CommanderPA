@@ -11,5 +11,8 @@
     <Setting Name="MSTest" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\MSTest.exe</Value>
     </Setting>
+    <Setting Name="MaxParallelTests" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">6</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

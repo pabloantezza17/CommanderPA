@@ -35,9 +35,11 @@ namespace TestRunner
 
             this.CambiarOrdenDeEjecucion(tests);
 
+            Int32 maxParallel = Settings.Default.MaxParallelTests > 0 ? Settings.Default.MaxParallelTests : 4;
+
             Parallel.ForEach(
                 tests.Where(t => t.IsSelected),
-                new ParallelOptions { MaxDegreeOfParallelism = 4 },
+                new ParallelOptions { MaxDegreeOfParallelism = maxParallel },
                 t => this.DoTask(t)
                 );
 
@@ -88,6 +90,13 @@ namespace TestRunner
 
             Thread.CurrentThread.IsBackground = true;
 
+            // Categoría por assembly: Neoris.Fwk => pestaña FWK; *.Tests.Integration => pestaña
+            // Integration; el resto suma al total. Se decide por el nombre del DLL, no por el
+            // texto de cada línea.
+            String assemblyName = System.IO.Path.GetFileName(testView.Name);
+            Boolean esFwk = assemblyName.StartsWith("Neoris.Fwk");
+            Boolean esIntegracion = !esFwk && assemblyName.EndsWith(".Tests.Integration.dll");
+
             Process process = this.CreateProcess(testView);
             process.Start();
 
@@ -104,7 +113,7 @@ namespace TestRunner
                             gettingResults = true;
                     }
                     else
-                        gettingResults = this.VM.AddLine(line);
+                        gettingResults = this.VM.AddLine(line, esFwk, esIntegracion);
                 }
 
                 process.WaitForExit();
