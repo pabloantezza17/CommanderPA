@@ -6,6 +6,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using TestRunner.Dialogs;
 
 namespace TestRunner
 {
@@ -101,13 +102,31 @@ namespace TestRunner
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            IEnumerable<Process> processes = this.Tests.processes.Where(p => p != null && !p.HasExited);
-
-            foreach (Process p in processes)
-                if (p != null && !p.HasExited)
-                    p.Kill();
+            this.Tests.KillProcesses();
 
             Environment.Exit(0);
+        }
+
+        /// <summary>
+        /// Frena la corrida desde el botón: mata los MSTest en curso y no arranca los assemblies
+        /// que faltaban. La ventana queda abierta con los resultados que alcanzaron a llegar.
+        /// </summary>
+        private void Cancel_Click(Object sender, RoutedEventArgs e)
+        {
+            if (this.VM.Cancelled)
+                return;
+
+            Boolean confirmed = MessageDialog.Confirm(
+                "¿Frenar la corrida?",
+                "Se matan los MSTest en curso y no se arrancan los assemblies que faltan. Los resultados que ya llegaron quedan en pantalla.",
+                "Frenar",
+                "Seguir",
+                DialogKind.Stopped);
+
+            if (!confirmed)
+                return;
+
+            this.VM.RequestCancel();
         }
 
         private void List_MouseDoubleClick(Object sender, MouseButtonEventArgs e)

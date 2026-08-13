@@ -8,7 +8,13 @@ namespace Commandr.UpdateRunner
         Pending,
         Running,
         Ok,
-        Failed
+        Failed,
+
+        /// <summary>Estaba corriendo cuando se frenó el proceso.</summary>
+        Cancelled,
+
+        /// <summary>Nunca arrancó porque se frenó el proceso antes de llegar.</summary>
+        Skipped
     }
 
     public class BuildStep : INotifyPropertyChanged

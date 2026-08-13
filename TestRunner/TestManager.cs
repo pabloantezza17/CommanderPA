@@ -12,7 +12,11 @@ namespace TestRunner
         #region Members
 
         private TesterVM VM;
-        public List<Process> processes;
+
+        // La lista se toca desde los hilos del Parallel.ForEach y desde el hilo de UI (frenar /
+        // cerrar la ventana), así que todo acceso va dentro del lock.
+        private readonly List<Process> processes = new List<Process>();
+        private readonly Object processGate = new Object();
 
         #endregion
 
@@ -21,6 +25,8 @@ namespace TestRunner
         public TestManager(TesterVM vm)
         {
             this.VM = vm;
+
+            this.VM.CancelRequested += this.VM_CancelRequested;
         }
 
         #endregion
@@ -29,9 +35,10 @@ namespace TestRunner
 
         public void RunTests(List<TestView> tests)
         {
-            this.processes = new List<Process>();
-
             this.VM.Stopwatch.Start();
+
+            // El botón de frenar depende de que el cronómetro esté corriendo.
+            this.VM.RaiseRunState();
 
             this.CambiarOrdenDeEjecucion(tests);
 
@@ -61,18 +68,77 @@ namespace TestRunner
             }
         }
 
+        /// <summary>Mata los MSTest en curso cuando el usuario frena la corrida.</summary>
+        private void VM_CancelRequested(Object sender, EventArgs e)
+        {
+            this.KillProcesses();
+        }
+
         public void KillProcesses()
         {
-            foreach (Process p in this.processes)
-                if (!p.HasExited)
-                    p.Kill();
+            List<Process> running;
+
+            lock (this.processGate)
+            {
+                running = new List<Process>(this.processes);
+            }
+
+            foreach (Process p in running)
+                KillProcessTree(p);
+        }
+
+        /// <summary>
+        /// Mata el proceso y toda su descendencia: MSTest levanta hosts hijos que quedarían
+        /// huérfanos (y siguen consumiendo la máquina) con un Kill() simple.
+        /// </summary>
+        private static void KillProcessTree(Process process)
+        {
+            Int32 pid;
+
+            try
+            {
+                if (process == null || process.HasExited)
+                    return;
+
+                pid = process.Id;
+            }
+            catch (Exception)
+            {
+                // El proceso pudo terminar entre el chequeo y la lectura del Id.
+                return;
+            }
+
+            try
+            {
+                Process kill = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "taskkill",
+                    Arguments = "/F /T /PID " + pid,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                });
+
+                if (kill != null)
+                {
+                    kill.WaitForExit();
+                    kill.Dispose();
+                }
+            }
+            catch (Exception)
+            {
+                // Último recurso: intento matar al menos el proceso raíz.
+                try { process.Kill(); } catch { }
+            }
         }
 
         private Process CreateProcess(TestView test)
         {
             Process p = new Process();
 
-            this.processes.Add(p);
+            lock (this.processGate)
+            {
+                this.processes.Add(p);
+            }
 
             p.StartInfo.FileName = Settings.Default.MSTest;
             p.StartInfo.Arguments = String.Format(MainWindow.programSingleThread, test.Name);
@@ -90,6 +156,10 @@ namespace TestRunner
 
             Thread.CurrentThread.IsBackground = true;
 
+            // Frenaron la corrida: no arranco este assembly.
+            if (this.VM.Cancelled)
+                return null;
+
             // Categoría por assembly: Neoris.Fwk => pestaña FWK; *.Tests.Integration => pestaña
             // Integration; el resto suma al total. Se decide por el nombre del DLL, no por el
             // texto de cada línea.
@@ -100,6 +170,13 @@ namespace TestRunner
             Process process = this.CreateProcess(testView);
             process.Start();
 
+            // La cancelación pudo llegar entre el chequeo anterior y el Start: la atiendo acá.
+            if (this.VM.Cancelled)
+            {
+                KillProcessTree(process);
+                return null;
+            }
+
             String line;
             Boolean gettingResults = false;
 
@@ -107,6 +184,10 @@ namespace TestRunner
             {
                 while ((line = process.StandardOutput.ReadLine()) != null)
                 {
+                    // Dejo de procesar salida en cuanto se frena (el proceso ya fue matado).
+                    if (this.VM.Cancelled)
+                        return null;
+
                     if (!gettingResults)
                     {
                         if (line.StartsWith("-------"))

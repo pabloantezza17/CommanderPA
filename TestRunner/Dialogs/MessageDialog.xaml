@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window x:Class="TestRunner.Dialogs.MessageDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Width="460"
+        SizeToContent="Height"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner"
+        FontFamily="Segoe UI"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown"
+        PreviewKeyDown="Window_PreviewKeyDown">
+
+    <Window.Resources>
+
+        <SolidColorBrush x:Key="TextBrush" Color="#FF1F2430" />
+        <SolidColorBrush x:Key="MutedBrush" Color="#FF98A0AD" />
+        <SolidColorBrush x:Key="BorderBrush" Color="#FFE4E8EE" />
+
+        <!-- Botón principal: fondo de acento, seteado por código según el tipo de diálogo -->
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Padding" Value="20,8" />
+            <Setter Property="MinWidth" Value="96" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="b"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="b" Property="Opacity" Value="0.88" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="b" Property="Opacity" Value="0.72" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Botón secundario: blanco con borde -->
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Padding" Value="20,8" />
+            <Setter Property="MinWidth" Value="96" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="b"
+                                Background="White"
+                                CornerRadius="6"
+                                BorderBrush="{StaticResource BorderBrush}"
+                                BorderThickness="1"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="b" Property="Background" Value="#FFF7F9FC" />
+                                <Setter TargetName="b" Property="BorderBrush" Value="#FFCBD3DE" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="b" Property="Background" Value="#FFEDF1F6" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+
+    <!-- Margen exterior: deja lugar para la sombra -->
+    <Border Margin="16" Background="White" CornerRadius="12">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="22" ShadowDepth="3" Direction="270" Opacity="0.22" Color="#FF0B1220" />
+        </Border.Effect>
+
+        <DockPanel>
+
+            <!-- Pie con los botones -->
+            <Border DockPanel.Dock="Bottom"
+                    Background="#FFF7F9FC"
+                    CornerRadius="0,0,12,12"
+                    BorderBrush="{StaticResource BorderBrush}"
+                    BorderThickness="0,1,0,0"
+                    Padding="20,14">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button x:Name="CancelButton"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Margin="0,0,10,0"
+                            Click="Cancel_Click" />
+                    <Button x:Name="AcceptButton"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            IsDefault="True"
+                            Click="Accept_Click" />
+                </StackPanel>
+            </Border>
+
+            <!-- Cuerpo: badge de acento + textos -->
+            <Grid Margin="24,24,24,22">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0" Width="46" Height="46" VerticalAlignment="Top" Margin="0,2,16,0">
+                    <Ellipse x:Name="BadgeBack" />
+                    <TextBlock x:Name="BadgeGlyph"
+                               FontSize="21"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center" />
+                </Grid>
+
+                <StackPanel Grid.Column="1">
+                    <TextBlock x:Name="TitleText"
+                               FontSize="16"
+                               FontWeight="Bold"
+                               TextWrapping="Wrap"
+                               Foreground="{StaticResource TextBrush}" />
+                    <TextBlock x:Name="MessageText"
+                               FontSize="13.5"
+                               TextWrapping="Wrap"
+                               LineHeight="20"
+                               Margin="0,8,0,0"
+                               Foreground="#FF5B6472" />
+                    <TextBlock x:Name="DetailText"
+                               FontSize="12.5"
+                               TextWrapping="Wrap"
+                               Margin="0,10,0,0"
+                               Foreground="{StaticResource MutedBrush}" />
+                </StackPanel>
+            </Grid>
+        </DockPanel>
+    </Border>
+</Window>

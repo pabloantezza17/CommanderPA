@@ -23,6 +23,36 @@
         <SolidColorBrush x:Key="RedBrush" Color="#FFE5484D" />
         <SolidColorBrush x:Key="TealBrush" Color="#FF12A4A4" />
         <SolidColorBrush x:Key="PurpleBrush" Color="#FF6B5BFF" />
+        <SolidColorBrush x:Key="AmberBrush" Color="#FFE59A1F" />
+
+        <!-- Botón de frenado -->
+        <Style x:Key="CancelButtonStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontSize" Value="12.5" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Padding" Value="14,6" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="b"
+                                Background="{StaticResource RedBrush}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="b" Property="Background" Value="#FFC93B40" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="b" Property="Background" Value="#FFA82F33" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
         <!-- Fila de test: punto de estado por color + descripción -->
         <DataTemplate x:Key="TestItemTemplate">
@@ -196,6 +226,42 @@
                          Foreground="{StaticResource GreenBrush}"
                          Background="#FFEDEFF3"
                          BorderThickness="0" />
+            <Button Content="Frenar tests"
+                    Style="{StaticResource CancelButtonStyle}"
+                    Visibility="{Binding Path=ShowCancel}"
+                    HorizontalAlignment="Center"
+                    Margin="0,24,0,0"
+                    Click="Cancel_Click" />
+        </StackPanel>
+
+        <!-- Se frenó antes de que llegara el primer resultado -->
+        <StackPanel Visibility="{Binding Path=ShowCancelled}"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+            <Grid Width="116" Height="116" HorizontalAlignment="Center">
+                <Ellipse Fill="#FFFDF4E5" />
+                <Ellipse Margin="7"
+                         Stroke="{StaticResource AmberBrush}"
+                         StrokeThickness="3" />
+                <Rectangle Width="36"
+                           Height="36"
+                           RadiusX="7"
+                           RadiusY="7"
+                           Fill="{StaticResource AmberBrush}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center" />
+            </Grid>
+            <TextBlock Text="CORRIDA CANCELADA"
+                       FontSize="14"
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource TextBrush}"
+                       HorizontalAlignment="Center"
+                       Margin="0,22,0,0" />
+            <TextBlock Text="No llegó a terminar ningún test."
+                       FontSize="13"
+                       Foreground="{StaticResource MutedBrush}"
+                       HorizontalAlignment="Center"
+                       Margin="0,6,0,0" />
         </StackPanel>
 
         <DockPanel Visibility="{Binding Path=ShowTabs}">
@@ -215,12 +281,20 @@
                                    FontWeight="Bold"
                                    VerticalAlignment="Center" />
                     </StackPanel>
-                    <TextBlock Text="{Binding Path=Title}"
-                               Foreground="#FFB9C0CC"
-                               FontSize="13"
-                               HorizontalAlignment="Right"
-                               VerticalAlignment="Center"
-                               TextTrimming="CharacterEllipsis" />
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Path=Title}"
+                                   Foreground="#FFB9C0CC"
+                                   FontSize="13"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,14,0"
+                                   TextTrimming="CharacterEllipsis" />
+                        <Button Content="Frenar"
+                                Style="{StaticResource CancelButtonStyle}"
+                                Visibility="{Binding Path=ShowCancel}"
+                                Click="Cancel_Click" />
+                    </StackPanel>
                 </Grid>
             </Border>
 

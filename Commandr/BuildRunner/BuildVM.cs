@@ -13,7 +13,8 @@ namespace Commandr.BuildRunner
     {
         Building,
         Success,
-        Failed
+        Failed,
+        Cancelled
     }
 
     public class BuildVM : INotifyPropertyChanged
@@ -26,6 +27,13 @@ namespace Commandr.BuildRunner
         private Stopwatch _stopwatch;
         private StringBuilder _log;
         private BuildStatus _status;
+        private volatile Boolean _cancelled;
+
+        /// <summary>
+        /// Se dispara cuando se cierra la ventana con la compilación en curso.
+        /// El <see cref="Builder"/> lo escucha para matar el árbol de MSBuild.
+        /// </summary>
+        public event EventHandler CancelRequested;
 
         #endregion
 
@@ -40,6 +48,11 @@ namespace Commandr.BuildRunner
         #endregion
 
         #region Properties
+
+        public Boolean Cancelled
+        {
+            get { return this._cancelled; }
+        }
 
         public String SolutionName { get; set; }
 
@@ -95,6 +108,8 @@ namespace Commandr.BuildRunner
                         return "Compilación exitosa";
                     case BuildStatus.Failed:
                         return "Compilación con errores";
+                    case BuildStatus.Cancelled:
+                        return "Compilación cancelada";
                     default:
                         return "Compilando...";
                 }
@@ -121,6 +136,17 @@ namespace Commandr.BuildRunner
             get { return this.Status == BuildStatus.Failed ? Visibility.Visible : Visibility.Collapsed; }
         }
 
+        public Visibility ShowCancelled
+        {
+            get { return this.Status == BuildStatus.Cancelled ? Visibility.Visible : Visibility.Collapsed; }
+        }
+
+        /// <summary>El botón de frenar sólo tiene sentido mientras la compilación está en curso.</summary>
+        public Visibility ShowCancel
+        {
+            get { return this.Status == BuildStatus.Building ? Visibility.Visible : Visibility.Collapsed; }
+        }
+
         #endregion
 
         #region Methods
@@ -144,6 +170,8 @@ namespace Commandr.BuildRunner
             this.RaisePropertyChangedEvent("ShowBuilding");
             this.RaisePropertyChangedEvent("ShowSuccess");
             this.RaisePropertyChangedEvent("ShowFailed");
+            this.RaisePropertyChangedEvent("ShowCancelled");
+            this.RaisePropertyChangedEvent("ShowCancel");
         }
 
         public void AddLine(String line)
@@ -161,8 +189,34 @@ namespace Commandr.BuildRunner
             }
         }
 
+        /// <summary>
+        /// Cancela la compilación: marca el estado y avisa al <see cref="Builder"/> para que
+        /// mate MSBuild. Idempotente (la ventana puede cerrarse una sola vez, pero por las dudas).
+        /// </summary>
+        public void RequestCancel()
+        {
+            if (this._cancelled)
+                return;
+
+            this._cancelled = true;
+            this.Stopwatch.Stop();
+
+            // Primero mato MSBuild; después actualizo la pantalla.
+            CancelRequested?.Invoke(this, EventArgs.Empty);
+
+            this.WriteLog(false);
+
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                this.Status = BuildStatus.Cancelled;
+            }));
+        }
+
         public void Finish(Boolean success)
         {
+            if (this._cancelled)
+                return;
+
             this.Stopwatch.Stop();
 
             this.WriteLog(success);
@@ -193,7 +247,7 @@ namespace Commandr.BuildRunner
                         "Build de {0} ({1}) - {2} en {3}s.",
                         this.SolutionName,
                         this.Branch,
-                        success ? "OK" : "ERRORES",
+                        this._cancelled ? "CANCELADO" : (success ? "OK" : "ERRORES"),
                         this.ElapsedTime));
 
                     writer.Write(this._log.ToString());

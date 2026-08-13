@@ -38,6 +38,20 @@ namespace Commandr.BuildRunner
 
         #region Methods
 
+        /// <summary>
+        /// Cerrar la ventana cancela la compilación: no tiene sentido seguir ocupando la máquina
+        /// (y bloqueando DLLs) por un build que ya nadie va a mirar.
+        /// </summary>
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            base.OnClosing(e);
+
+            this.timer.Stop();
+
+            if (this.VM.Status == BuildStatus.Building)
+                this.VM.RequestCancel();
+        }
+
         private void VM_PropertyChanged(Object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName != "Status")
@@ -55,6 +69,9 @@ namespace Commandr.BuildRunner
                 case BuildStatus.Failed:
                     this.AccentBar.Background = (Brush)this.FindResource("RedBrush");
                     break;
+                case BuildStatus.Cancelled:
+                    this.AccentBar.Background = (Brush)this.FindResource("AmberBrush");
+                    break;
             }
         }
 
@@ -70,6 +87,18 @@ namespace Commandr.BuildRunner
         #endregion
 
         #region Commands
+
+        /// <summary>
+        /// Frena la compilación desde el botón del header: mata MSBuild y sus nodos worker,
+        /// dejando la ventana abierta para ver lo que alcanzó a reportar.
+        /// </summary>
+        private void Cancel_Click(Object sender, RoutedEventArgs e)
+        {
+            if (this.VM.Status != BuildStatus.Building)
+                return;
+
+            this.VM.RequestCancel();
+        }
 
         private void ListErrors_MouseDoubleClick(Object sender, MouseButtonEventArgs e)
         {

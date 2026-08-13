@@ -44,9 +44,25 @@ namespace Commandr
 
             this.StopScheduler();
 
+            Process proc = null;
+            Object gate = new Object();
+            Boolean started = false;
+
+            // Si cierran la ventana mientras compila, matamos MSBuild y sus nodos hijos.
+            EventHandler onCancel = (s, e) =>
+            {
+                lock (gate)
+                {
+                    if (started)
+                        KillProcessTree(proc);
+                }
+            };
+
+            vm.CancelRequested += onCancel;
+
             try
             {
-                Process proc = new Process
+                proc = new Process
                 {
                     StartInfo = new ProcessStartInfo
                     {
@@ -63,9 +79,22 @@ namespace Commandr
                 proc.OutputDataReceived += (s, e) => { if (e.Data != null) vm.AddLine(e.Data); };
                 proc.ErrorDataReceived += (s, e) => { if (e.Data != null) vm.AddLine(e.Data); };
 
-                proc.Start();
+                if (vm.Cancelled)
+                    return;
+
+                lock (gate)
+                {
+                    proc.Start();
+                    started = true;
+                }
+
                 proc.BeginOutputReadLine();
                 proc.BeginErrorReadLine();
+
+                // La cancelación pudo llegar entre el chequeo anterior y el Start: la atiendo acá.
+                if (vm.Cancelled)
+                    KillProcessTree(proc);
+
                 proc.WaitForExit();
 
                 vm.Finish(proc.ExitCode == 0);
@@ -74,6 +103,60 @@ namespace Commandr
             {
                 vm.AddLine("No se pudo iniciar la compilación: " + ex.Message);
                 vm.Finish(false);
+            }
+            finally
+            {
+                vm.CancelRequested -= onCancel;
+
+                lock (gate)
+                {
+                    if (proc != null)
+                        proc.Dispose();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Mata el proceso y toda su descendencia. En .NET Framework no existe
+        /// Process.Kill(entireProcessTree), así que delegamos en taskkill para no dejar
+        /// huérfanos los nodos worker que levanta MSBuild con /m.
+        /// </summary>
+        private static void KillProcessTree(Process process)
+        {
+            Int32 pid;
+
+            try
+            {
+                if (process == null || process.HasExited)
+                    return;
+
+                pid = process.Id;
+            }
+            catch (Exception)
+            {
+                return;
+            }
+
+            try
+            {
+                Process kill = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "taskkill",
+                    Arguments = "/F /T /PID " + pid,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                });
+
+                if (kill != null)
+                {
+                    kill.WaitForExit();
+                    kill.Dispose();
+                }
+            }
+            catch (Exception)
+            {
+                // Último recurso: intento matar al menos el proceso raíz.
+                try { process.Kill(); } catch { }
             }
         }
 

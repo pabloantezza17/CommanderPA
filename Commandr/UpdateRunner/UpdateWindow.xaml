@@ -21,6 +21,36 @@
         <SolidColorBrush x:Key="GreenBrush" Color="#FF22A65B" />
         <SolidColorBrush x:Key="RedBrush" Color="#FFE5484D" />
         <SolidColorBrush x:Key="TealBrush" Color="#FF12A4A4" />
+        <SolidColorBrush x:Key="AmberBrush" Color="#FFE59A1F" />
+
+        <!-- Botón de frenado: chato, rojo, sobre el header oscuro -->
+        <Style x:Key="CancelButtonStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontSize" Value="12.5" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Padding" Value="14,6" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="b"
+                                Background="{StaticResource RedBrush}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="b" Property="Background" Value="#FFC93B40" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="b" Property="Background" Value="#FFA82F33" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
         <!-- Fila de paso: glyph de estado + nombre -->
         <DataTemplate x:Key="StepItemTemplate">
@@ -59,6 +89,21 @@
                     <Setter TargetName="glyph" Property="Foreground" Value="{StaticResource RedBrush}" />
                     <Setter TargetName="label" Property="Foreground" Value="{StaticResource RedBrush}" />
                     <Setter TargetName="label" Property="FontWeight" Value="SemiBold" />
+                </DataTrigger>
+                <!-- Frenado en el medio: cuadrado de "stop" ámbar. -->
+                <DataTrigger Binding="{Binding State}" Value="Cancelled">
+                    <Setter TargetName="glyph" Property="Text" Value="&#x25A0;" />
+                    <Setter TargetName="glyph" Property="FontSize" Value="11" />
+                    <Setter TargetName="glyph" Property="Foreground" Value="{StaticResource AmberBrush}" />
+                    <Setter TargetName="label" Property="Foreground" Value="{StaticResource AmberBrush}" />
+                    <Setter TargetName="label" Property="FontWeight" Value="SemiBold" />
+                </DataTrigger>
+                <!-- Nunca arrancó: círculo vacío gris. -->
+                <DataTrigger Binding="{Binding State}" Value="Skipped">
+                    <Setter TargetName="glyph" Property="Text" Value="&#x25CB;" />
+                    <Setter TargetName="glyph" Property="FontSize" Value="11" />
+                    <Setter TargetName="glyph" Property="Foreground" Value="{StaticResource MutedBrush}" />
+                    <Setter TargetName="label" Property="Foreground" Value="{StaticResource MutedBrush}" />
                 </DataTrigger>
             </DataTemplate.Triggers>
         </DataTemplate>
@@ -104,12 +149,20 @@
                                    FontWeight="Bold"
                                    VerticalAlignment="Center" />
                     </StackPanel>
-                    <TextBlock Text="{Binding Path=Title}"
-                               Foreground="#FFB9C0CC"
-                               FontSize="13"
-                               HorizontalAlignment="Right"
-                               VerticalAlignment="Center"
-                               TextTrimming="CharacterEllipsis" />
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Path=Title}"
+                                   Foreground="#FFB9C0CC"
+                                   FontSize="13"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,14,0"
+                                   TextTrimming="CharacterEllipsis" />
+                        <Button Content="Frenar"
+                                Style="{StaticResource CancelButtonStyle}"
+                                Visibility="{Binding Path=ShowCancel}"
+                                Click="Cancel_Click" />
+                    </StackPanel>
                 </Grid>
             </Border>
 
@@ -122,10 +175,22 @@
                     Padding="16,12"
                     Margin="0,0,0,10">
                 <StackPanel>
-                    <TextBlock Text="{Binding Path=StatusText}"
-                               FontSize="14"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource TextBrush}" />
+                    <StackPanel Orientation="Horizontal">
+                        <!-- Cuadrado de "stop" ámbar: sólo cuando se frenó el proceso. -->
+                        <Rectangle Width="10"
+                                   Height="10"
+                                   RadiusX="2"
+                                   RadiusY="2"
+                                   Fill="{StaticResource AmberBrush}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,9,0"
+                                   Visibility="{Binding Path=ShowCancelled}" />
+                        <TextBlock Text="{Binding Path=StatusText}"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center"
+                                   Foreground="{StaticResource TextBrush}" />
+                    </StackPanel>
                     <ProgressBar IsIndeterminate="True"
                                  Height="5"
                                  Margin="0,10,0,0"
@@ -133,6 +198,12 @@
                                  Background="#FFEDEFF3"
                                  BorderThickness="0"
                                  Visibility="{Binding Path=ShowWorking}" />
+                    <!-- Barra congelada: mantiene la altura de la tarjeta al frenar. -->
+                    <Border Height="5"
+                            CornerRadius="2.5"
+                            Margin="0,10,0,0"
+                            Background="#FFF6E2C0"
+                            Visibility="{Binding Path=ShowCancelled}" />
                 </StackPanel>
             </Border>
 

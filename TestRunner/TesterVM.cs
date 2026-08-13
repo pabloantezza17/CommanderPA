@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Media;
+using TestRunner.Dialogs;
 
 namespace TestRunner
 {
@@ -21,6 +22,13 @@ namespace TestRunner
         private ObservableCollection<TestEntity> _fwk;
         private Stopwatch _stopwatch;
         private StringBuilder Builder;
+        private volatile Boolean _cancelled;
+
+        /// <summary>
+        /// Se dispara cuando se frena la corrida.
+        /// El <see cref="TestManager"/> lo escucha para matar los MSTest en curso.
+        /// </summary>
+        public event EventHandler CancelRequested;
 
         #endregion Members
 
@@ -53,6 +61,26 @@ namespace TestRunner
         }
 
         public String Rama { get; set; }
+
+        public Boolean Cancelled
+        {
+            get { return this._cancelled; }
+        }
+
+        /// <summary>El botón de frenar sólo tiene sentido mientras la corrida está en curso.</summary>
+        public Visibility ShowCancel
+        {
+            get { return this.Stopwatch.IsRunning && !this._cancelled ? Visibility.Visible : Visibility.Collapsed; }
+        }
+
+        /// <summary>
+        /// Cartel de corrida cancelada: reemplaza al de "corriendo" cuando se frenó antes de que
+        /// llegara algún resultado (con resultados ya se ven las pestañas).
+        /// </summary>
+        public Visibility ShowCancelled
+        {
+            get { return this._cancelled && this.Count == 0 ? Visibility.Visible : Visibility.Collapsed; }
+        }
 
         public Stopwatch Stopwatch
         {
@@ -97,7 +125,7 @@ namespace TestRunner
         {
             get
             {
-                return this.Count > 0 ?
+                return this.Count > 0 || this._cancelled ?
                     Visibility.Collapsed : Visibility.Visible;
             }
         }
@@ -142,6 +170,9 @@ namespace TestRunner
 
                 if (this.Stopwatch.IsRunning || this.Stopwatch.ElapsedMilliseconds > 0)
                     message += ". Tiempo: " + this.ElapsedTime + "s";
+
+                if (this._cancelled)
+                    message += " (cancelado)";
 
                 return message;
             }
@@ -256,6 +287,35 @@ namespace TestRunner
             }
         }
 
+        /// <summary>Refresca lo que depende de si la corrida está viva o ya se frenó.</summary>
+        public void RaiseRunState()
+        {
+            this.RaisePropertyChangedEvent("Title");
+            this.RaisePropertyChangedEvent("ShowCancel");
+            this.RaisePropertyChangedEvent("ShowCancelled");
+            this.RaisePropertyChangedEvent("ShowTabs");
+            this.RaisePropertyChangedEvent("ShowLoading");
+        }
+
+        /// <summary>
+        /// Frena la corrida: congela el tiempo y avisa al <see cref="TestManager"/> para que mate
+        /// los MSTest en curso. Los tests que faltaban no se arrancan.
+        /// </summary>
+        public void RequestCancel()
+        {
+            if (this._cancelled)
+                return;
+
+            this._cancelled = true;
+
+            // Primero mato los procesos; después refresco la pantalla.
+            CancelRequested?.Invoke(this, EventArgs.Empty);
+
+            this.Stopwatch.Stop();
+
+            this.RaiseRunState();
+        }
+
         private void InvokeUpdateList(ObservableCollection<TestEntity> list, String line)
         {
             Application.Current.Dispatcher.BeginInvoke(new Action(() => list.Add(new TestEntity(line))));
@@ -312,7 +372,9 @@ namespace TestRunner
 
             StreamWriter writer = new StreamWriter(String.Format("logs/{0}-{1}.log", this.Rama, DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")));
 
-            writer.WriteLine(String.Format("Ran {0} tests in {1} seconds.", this.Count, this.ElapsedTime));
+            writer.WriteLine(this._cancelled
+                ? String.Format("CANCELADO: {0} tests alcanzaron a correr en {1} seconds.", this.Count, this.ElapsedTime)
+                : String.Format("Ran {0} tests in {1} seconds.", this.Count, this.ElapsedTime));
             writer.Write(this.Builder.ToString());
             writer.Flush();
             writer.Close();
@@ -321,9 +383,40 @@ namespace TestRunner
 
             this.RaiseProps();
 
+            this.RaiseRunState();
+
             this.CleanUp();
 
-            MessageBox.Show(String.Format("Test run finished! Time elapsed: {0}s", this.ElapsedTime), this.AllCant);
+            this.ShowResultDialog();
+        }
+
+        /// <summary>Aviso de fin de corrida, con el color según cómo terminó.</summary>
+        private void ShowResultDialog()
+        {
+            String title;
+            DialogKind kind;
+
+            if (this._cancelled)
+            {
+                title = "Corrida cancelada";
+                kind = DialogKind.Stopped;
+            }
+            else if (this.FailedTestsCollection.Count > 0)
+            {
+                title = "Corrida terminada con fallas";
+                kind = DialogKind.Failed;
+            }
+            else
+            {
+                title = "Corrida terminada";
+                kind = DialogKind.Success;
+            }
+
+            MessageDialog.Info(
+                title,
+                String.Format("Tiempo transcurrido: {0}s", this.ElapsedTime),
+                String.Format("{0}  ·  {1}  ·  {2}", this.AllCant, this.CantPassed, this.CantFailed),
+                kind);
         }
 
         public void CleanUp()

@@ -12,7 +12,8 @@ namespace Commandr.UpdateRunner
     {
         Working,
         Success,
-        Failed
+        Failed,
+        Cancelled
     }
 
     public class UpdateVM : INotifyPropertyChanged
@@ -27,6 +28,13 @@ namespace Commandr.UpdateRunner
         private StringBuilder _log;
         private UpdateStatus _status;
         private String _statusText;
+        private volatile Boolean _cancelled;
+
+        /// <summary>
+        /// Se dispara cuando se cierra la ventana con el proceso en curso.
+        /// El <see cref="UpdateManager"/> lo escucha para matar el proceso vigente.
+        /// </summary>
+        public event EventHandler CancelRequested;
 
         #endregion
 
@@ -42,6 +50,11 @@ namespace Commandr.UpdateRunner
         #endregion
 
         #region Properties
+
+        public Boolean Cancelled
+        {
+            get { return this._cancelled; }
+        }
 
         public String Branch { get; set; }
 
@@ -63,6 +76,8 @@ namespace Commandr.UpdateRunner
                 this._status = value;
                 this.RaisePropertyChangedEvent("Status");
                 this.RaisePropertyChangedEvent("ShowWorking");
+                this.RaisePropertyChangedEvent("ShowCancel");
+                this.RaisePropertyChangedEvent("ShowCancelled");
             }
         }
 
@@ -92,6 +107,17 @@ namespace Commandr.UpdateRunner
         }
 
         public Visibility ShowWorking
+        {
+            get { return this.Status == UpdateStatus.Working ? Visibility.Visible : Visibility.Collapsed; }
+        }
+
+        public Visibility ShowCancelled
+        {
+            get { return this.Status == UpdateStatus.Cancelled ? Visibility.Visible : Visibility.Collapsed; }
+        }
+
+        /// <summary>El botón de frenar sólo tiene sentido mientras el proceso está en curso.</summary>
+        public Visibility ShowCancel
         {
             get { return this.Status == UpdateStatus.Working ? Visibility.Visible : Visibility.Collapsed; }
         }
@@ -134,8 +160,45 @@ namespace Commandr.UpdateRunner
             });
         }
 
+        /// <summary>
+        /// Cancela el proceso: marca el estado y avisa al <see cref="UpdateManager"/> para que
+        /// mate lo que esté corriendo (tf, MSBuild, etc.).
+        /// </summary>
+        public void RequestCancel()
+        {
+            if (this._cancelled)
+                return;
+
+            this._cancelled = true;
+            this.Stopwatch.Stop();
+
+            // Primero mato el proceso vigente; después actualizo la pantalla.
+            CancelRequested?.Invoke(this, EventArgs.Empty);
+
+            this.AddLine("Proceso cancelado por el usuario.");
+
+            this.WriteLog(false);
+
+            OnUi(() =>
+            {
+                foreach (BuildStep step in this.Steps)
+                {
+                    if (step.State == StepState.Running)
+                        step.State = StepState.Cancelled;
+                    else if (step.State == StepState.Pending)
+                        step.State = StepState.Skipped;
+                }
+
+                this.StatusText = "Cancelado por el usuario";
+                this.Status = UpdateStatus.Cancelled;
+            });
+        }
+
         public void Finish(Boolean success, String statusText)
         {
+            if (this._cancelled)
+                return;
+
             this.Stopwatch.Stop();
 
             this.WriteLog(success);
@@ -164,7 +227,7 @@ namespace Commandr.UpdateRunner
                     writer.WriteLine(String.Format(
                         "Update + build + test de {0} - {1} en {2}s.",
                         this.Branch,
-                        success ? "OK" : "ERRORES",
+                        this._cancelled ? "CANCELADO" : (success ? "OK" : "ERRORES"),
                         this.ElapsedTime));
 
                     writer.Write(this._log.ToString());
