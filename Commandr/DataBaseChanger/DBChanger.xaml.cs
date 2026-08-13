@@ -1,31 +1,58 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Data;
 using Framework.DataBase;
-using MahApps.Metro.Controls;
 
 namespace Commandr.DataBaseChanger
 {
-    public partial class DBChanger : MetroWindow
+    public partial class DBChanger : Window
     {
+        private ICollectionView databasesView;
+
         public DBChanger()
         {
             InitializeComponent();
 
             this.DataBases = this.LoadDataBases();
 
-            this.DataBaseList.ItemsSource = this.DataBases;
+            this.databasesView = CollectionViewSource.GetDefaultView(this.DataBases);
+            this.databasesView.Filter = this.MatchesSearch;
+
+            this.DataBaseList.ItemsSource = this.databasesView;
         }
 
         public DBChanger SetBranch(String branch)
         {
             this.Branch = branch;
 
+            this.BranchLabel.Text = branch;
+
             this.DataBaseList.SelectedIndex = 0;
 
             return this;
+        }
+
+        private Boolean MatchesSearch(Object item)
+        {
+            var search = this.SearchBox.Text;
+
+            if (String.IsNullOrWhiteSpace(search)) return true;
+
+            var name = item as String;
+
+            return name != null && name.IndexOf(search.Trim(), StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private void SearchBox_TextChanged(Object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            this.databasesView?.Refresh();
+
+            if (this.DataBaseList.SelectedIndex < 0 && this.DataBaseList.Items.Count > 0)
+                this.DataBaseList.SelectedIndex = 0;
         }
 
         #region Properties

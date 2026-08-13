@@ -186,10 +186,10 @@ namespace Commandr
                 Make(scripts, "Sync", NewFileAction("Get Latest", () => this.GetLatestVersion(), FileCommandType.Bat,
                     (Action)(() => this.UpdateBuildAndTest()), FileCommandType.BatWithArguments)),
                 Make(scripts, "Database", NewFileAction("Change DB", () => this.ChangeDB(),FileCommandType.Bat)),
-                Make(scripts, "Web", NewFileAction("Change IIS", BasePath + @"\src\change_iis_branch.bat",FileCommandType.Bat)),
-                Make(scripts, "Play", NewFileAction("Start Scheduler", BasePath + @"\src\FyO.Cor\FyO.Cor.Tasks.Host.WinService\Start.bat",FileCommandType.Bat)),
-                Make(scripts, "Stop", NewFileAction("Stop Scheduler", BasePath + @"\src\FyO.Cor\FyO.Cor.Tasks.Host.WinService\Stop.bat",FileCommandType.Bat)),
-                Make(scripts, "Restart", NewFileAction("Reset IIS", @"iisreset", FileCommandType.Executable)),
+                Make(scripts, "Web", NewFileAction("Change IIS", () => this.ChangeIIS(), FileCommandType.Bat)),
+                Make(scripts, "Play", NewFileAction("Start Scheduler", () => this.StartScheduler(), FileCommandType.Bat)),
+                Make(scripts, "Stop", NewFileAction("Stop Scheduler", () => this.StopScheduler(), FileCommandType.Bat)),
+                Make(scripts, "Restart", NewFileAction("Reset IIS", () => this.ResetIIS(), FileCommandType.Executable)),
 
                 Make(solutions, "VisualStudio", NewFileAction("Db", BasePath + @"\src\Db\FyO.Db.sln", FileCommandType.Solution )),
                 Make(solutions, "VisualStudio", NewFileAction("Fwk", BasePath + @"\src\Fwk\Neoris.FWK.sln",  FileCommandType.Solution)),
@@ -314,6 +314,42 @@ namespace Commandr
             var dbChanger = new DataBaseChanger.DBChanger().SetBranch(this.CurrentBranch);
 
             dbChanger.Show();
+        }
+
+        private void ChangeIIS()
+        {
+            var path = String.Format(BasePath, this.CurrentBranch) + @"\src\change_iis_branch.bat";
+
+            this.RunScript("Change IIS", path, isBatch: true, successText: "IIS apuntando a la rama " + this.CurrentBranch);
+        }
+
+        private void StartScheduler()
+        {
+            var path = String.Format(BasePath, this.CurrentBranch) + @"\src\FyO.Cor\FyO.Cor.Tasks.Host.WinService\Start.bat";
+
+            this.RunScript("Start Scheduler", path, isBatch: true, successText: "Scheduler iniciado");
+        }
+
+        private void StopScheduler()
+        {
+            var path = String.Format(BasePath, this.CurrentBranch) + @"\src\FyO.Cor\FyO.Cor.Tasks.Host.WinService\Stop.bat";
+
+            this.RunScript("Stop Scheduler", path, isBatch: true, successText: "Scheduler detenido");
+        }
+
+        private void ResetIIS()
+        {
+            // iisreset se resuelve por PATH (System32); no es un .bat.
+            this.RunScript("Reset IIS", "iisreset", isBatch: false, successText: "IIS reiniciado");
+        }
+
+        /// <summary>Abre la ventana de ejecución que corre el comando y muestra su salida en vivo.</summary>
+        private void RunScript(String title, String path, Boolean isBatch, String successText)
+        {
+            var window = new ScriptRunner.ScriptWindow(title + " - " + this.CurrentBranch, path, isBatch, successText);
+
+            window.Show();
+            window.Run();
         }
 
         private void ServerStatus()

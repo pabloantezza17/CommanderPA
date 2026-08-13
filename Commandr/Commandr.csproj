@@ -119,6 +119,11 @@
     <Compile Include="TfsRunner\TfsWindow.xaml.cs">
       <DependentUpon>TfsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ScriptRunner\ScriptVM.cs" />
+    <Compile Include="ScriptRunner\ScriptExecutor.cs" />
+    <Compile Include="ScriptRunner\ScriptWindow.xaml.cs">
+      <DependentUpon>ScriptWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UpdateRunner\BuildStep.cs" />
     <Compile Include="UpdateRunner\UpdateVM.cs" />
     <Compile Include="UpdateRunner\UpdateManager.cs" />
@@ -141,6 +146,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UpdateRunner\UpdateWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ScriptRunner\ScriptWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
