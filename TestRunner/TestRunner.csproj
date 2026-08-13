@@ -130,6 +130,9 @@
     <None Include="build_and_test_vs2017.bat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Content Include="Fast.testsettings">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
     <None Include="Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -223,7 +226,10 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /E /Y "$(ProjectDir)$(OutDir)*" "$(SolutionDir)Commandr\$(OutDir)TestRunner\"</PostBuildEvent>
+    <!-- Ruta relativa al proyecto, no a la solucion: $(SolutionDir) cambia segun si se compila
+         con FullSolution.sln o con TestRunner.sln, y con la segunda el xcopy armaba un deploy
+         huerfano en TestRunner\Commandr\ que no es el que lanza Commandr. -->
+    <PostBuildEvent>xcopy /E /Y "$(ProjectDir)$(OutDir)*" "$(ProjectDir)..\Commandr\$(OutDir)TestRunner\"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

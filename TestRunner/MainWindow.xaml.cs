@@ -14,7 +14,9 @@ namespace TestRunner
         private String path;
         public const String buildString = " /testcontainer:\"{0}\" ";
         public const String initialString = " /nologo /noisolation";
-        public const String programSingleThread = MainWindow.initialString + MainWindow.buildString;
+        public const String settingsString = " /testsettings:\"{1}\" ";
+        public const String programSingleThread = MainWindow.initialString + MainWindow.settingsString + MainWindow.buildString;
+        public const String testSettingsFile = "Fast.testsettings";
 
         public String programPath = Settings.Default.MSTest;
 
@@ -46,6 +48,17 @@ namespace TestRunner
         #endregion
 
         #region Methods
+
+        /// <summary>
+        /// Ruta del .testsettings que apaga el deployment de MSTest. Sin esto cada assembly copia
+        /// todo su bin (~62 MB medidos) a TestResults antes de arrancar; con ~50 assemblies son
+        /// varios GB de I/O por corrida. Ningún test del repo usa [DeploymentItem], así que correr
+        /// desde el bin directo da el mismo resultado.
+        /// </summary>
+        public static String TestSettingsPath
+        {
+            get { return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, MainWindow.testSettingsFile); }
+        }
 
         public void RunTestsInBranch(String branch)
         {

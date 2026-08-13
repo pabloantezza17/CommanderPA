@@ -419,15 +419,51 @@ namespace TestRunner
                 kind);
         }
 
+        /// <summary>
+        /// Borra los resultados de corridas anteriores. Un Delete recursivo se aborta entero al
+        /// primer archivo tomado por otro proceso, así que voy ítem por ítem: lo que no se puede
+        /// borrar ahora se borra en la próxima corrida, en vez de quedar todo acumulado.
+        /// La ruta se resuelve desde el directorio del exe: el CurrentDirectory puede haber
+        /// cambiado y con una ruta relativa el borrado apuntaba a cualquier lado.
+        /// </summary>
         public void CleanUp()
+        {
+            String testResults = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "TestResults");
+
+            if (!Directory.Exists(testResults))
+                return;
+
+            foreach (String directory in this.EnumerateOrEmpty(testResults, true))
+                this.TryDelete(() => Directory.Delete(directory, true));
+
+            foreach (String file in this.EnumerateOrEmpty(testResults, false))
+                this.TryDelete(() => File.Delete(file));
+
+            this.TryDelete(() => Directory.Delete(testResults, true));
+        }
+
+        private String[] EnumerateOrEmpty(String path, Boolean directories)
         {
             try
             {
-                if (Directory.Exists("TestResults"))
-                    Directory.Delete("TestResults", true);
+                return directories ? Directory.GetDirectories(path) : Directory.GetFiles(path);
             }
             catch (Exception)
             {
+                return new String[0];
+            }
+        }
+
+        private void TryDelete(Action delete)
+        {
+            try
+            {
+                delete();
+            }
+            catch (Exception)
+            {
+                // Handle todavía tomado (MSTest recién muerto, antivirus, explorador abierto en la
+                // carpeta): lo dejo para la próxima corrida.
             }
         }
 

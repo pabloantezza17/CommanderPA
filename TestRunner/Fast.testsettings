@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestSettings name="Fast" id="9f1c2a6e-6b3d-4f18-9a52-7c0d4e8b1f30" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Description>
+    Apaga el deployment de MSTest. Sin esto, cada assembly copia todo su bin (~70 MB) a
+    TestResults\&lt;corrida&gt;\Out antes de arrancar: con ~50 assemblies son varios GB de I/O
+    por corrida completa. Ningun test del repo usa [DeploymentItem], asi que correr desde el
+    bin directo es equivalente.
+  </Description>
+  <Deployment enabled="false" />
+  <Execution>
+    <TestTypeSpecific />
+  </Execution>
+</TestSettings>

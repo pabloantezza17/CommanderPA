@@ -141,7 +141,7 @@ namespace TestRunner
             }
 
             p.StartInfo.FileName = Settings.Default.MSTest;
-            p.StartInfo.Arguments = String.Format(MainWindow.programSingleThread, test.Name);
+            p.StartInfo.Arguments = String.Format(MainWindow.programSingleThread, test.Name, MainWindow.TestSettingsPath);
             p.StartInfo.CreateNoWindow = true;
             p.StartInfo.UseShellExecute = false;
 
