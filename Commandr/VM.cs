@@ -207,7 +207,8 @@ namespace Commandr
 
                 Make(tools, "TestTube", NewFileAction("TestRunner", Directory.GetCurrentDirectory() + @"\TestRunner\TestRunner.exe", FileCommandType.ExecutableWithArguments)),
                 Make(tools, "Toolbox", NewFileAction("Helper", Directory.GetCurrentDirectory() + @"\Helper.exe", FileCommandType.ExecutableWithArguments)),
-                Make(tools, "Application", NewFileAction("Shell", BasePath + @"\src\FyO.Cor\FyO.Cor.UI.Desktop.Shell\bin\Debug\FyO.Cor.UI.Desktop.Shell.exe", FileCommandType.Executable))
+                Make(tools, "Application", NewFileAction("Shell", BasePath + @"\src\FyO.Cor\FyO.Cor.UI.Desktop.Shell\bin\Debug\FyO.Cor.UI.Desktop.Shell.exe", FileCommandType.Executable)),
+                Make(tools, "CalendarClock", NewFileAction("Quartz", BasePath + @"\src\Tools\QuartzJobLauncher\QuartzJobLauncher\bin\Debug\QuartzJobLauncher.exe", FileCommandType.Executable))
             };
         }
 
