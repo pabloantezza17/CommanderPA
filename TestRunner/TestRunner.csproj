@@ -10,6 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Solo este archivo de Framework: evita arrastrar MahApps/SqlClient al TestRunner. -->
+    <Compile Include="..\Framework\LegacySettings.cs" Link="LegacySettings.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
   </ItemGroup>
 

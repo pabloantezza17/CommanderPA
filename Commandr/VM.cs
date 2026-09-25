@@ -254,6 +254,8 @@ namespace Commandr
 
         private void RunUpdatePipeline(Boolean includeGetLatest)
         {
+            this.RequireBranch();
+
             var vm = new UpdateRunner.UpdateVM { Branch = this.CurrentBranch };
 
             var branches = includeGetLatest
@@ -274,6 +276,20 @@ namespace Commandr
 
         /// <summary>Etiqueta especial del selector que baja todas las ramas configuradas.</summary>
         public const String AllBranchesLabel = "Todas";
+
+        /// <summary>
+        /// Rama concreta para los comandos que arman rutas con ella. Sin rama (o con "Todas") la ruta
+        /// quedaba como "Corretaje\\src\..." y no abría nada, así que corto antes con un mensaje claro.
+        /// </summary>
+        private String RequireBranch()
+        {
+            var branch = (this.CurrentBranch ?? String.Empty).Trim();
+
+            if (branch.Length == 0 || String.Equals(branch, AllBranchesLabel, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Elegí una rama en el selector de Branch antes de usar este comando.");
+
+            return branch;
+        }
 
         /// <summary>Ramas configuradas en Settings (lista separada por comas), sin la opción "Todas".</summary>
         private IEnumerable<String> ConfiguredBranches
@@ -312,6 +328,8 @@ namespace Commandr
 
         private void ChangeDB()
         {
+            this.RequireBranch();
+
             var dbChanger = new DataBaseChanger.DBChanger().SetBranch(this.CurrentBranch);
 
             dbChanger.Show();
@@ -319,6 +337,8 @@ namespace Commandr
 
         private void ChangeIIS()
         {
+            this.RequireBranch();
+
             var path = String.Format(BasePath, this.CurrentBranch) + @"\src\change_iis_branch.bat";
 
             this.RunScript("Change IIS", path, isBatch: true, successText: "IIS apuntando a la rama " + this.CurrentBranch);
@@ -326,6 +346,8 @@ namespace Commandr
 
         private void StartScheduler()
         {
+            this.RequireBranch();
+
             var path = String.Format(BasePath, this.CurrentBranch) + @"\src\FyO.Cor\FyO.Cor.Tasks.Host.WinService\Start.bat";
 
             this.RunScript("Start Scheduler", path, isBatch: true, successText: "Scheduler iniciado");
@@ -333,6 +355,8 @@ namespace Commandr
 
         private void StopScheduler()
         {
+            this.RequireBranch();
+
             var path = String.Format(BasePath, this.CurrentBranch) + @"\src\FyO.Cor\FyO.Cor.Tasks.Host.WinService\Stop.bat";
 
             this.RunScript("Stop Scheduler", path, isBatch: true, successText: "Scheduler detenido");
@@ -414,6 +438,9 @@ namespace Commandr
             {
                 if (!String.IsNullOrEmpty(fileCommand.Command))
                 {
+                    if (fileCommand.Command.Contains("{0}"))
+                        this.RequireBranch();
+
                     ProcessStartInfo info = new ProcessStartInfo { UseShellExecute = true };  // abre .sln y .bat por asociación
 
                     var command = info.FileName = String.Format(fileCommand.Command, this.CurrentBranch);
@@ -447,6 +474,8 @@ namespace Commandr
 
             if (rowCommand.RightClickCommand == null && rowCommand.LeftClickCommand != null && rowCommand.LeftClickCommand.CommandType == FileCommandType.Solution)
             {
+                this.RequireBranch();
+
                 var fileCommand = rowCommand.LeftClickCommand;
 
                 Builder builder = new Builder();
