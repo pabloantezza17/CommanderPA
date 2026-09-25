@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Windows;
 using Newtonsoft.Json;
@@ -21,11 +21,15 @@ namespace Framework
 
         public static String DoPost(String url, NameValueCollection args)
         {
-            using (WebClient client = new WebClient())
+            using (HttpClient client = new HttpClient())
             {
-                byte[] response = client.UploadValues(url, args);
+                var content = new FormUrlEncodedContent(args.AllKeys.Select(k => new KeyValuePair<String, String>(k, args[k])));
 
-                return System.Text.Encoding.UTF8.GetString(response);
+                HttpResponseMessage response = client.PostAsync(url, content).GetAwaiter().GetResult();
+
+                response.EnsureSuccessStatusCode();
+
+                return response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
             }
         }
 

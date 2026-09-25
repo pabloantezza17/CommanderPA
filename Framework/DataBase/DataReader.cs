@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Linq;
 
 namespace Framework.DataBase
@@ -10,10 +10,25 @@ namespace Framework.DataBase
     {
         public DataReader(String connectionString)
         {
-            this.ConnectionString = connectionString;
+            this.ConnectionString = WithLegacyEncryptDefault(connectionString);
         }
 
         public String ConnectionString { get; }
+
+        /// <summary>
+        /// Microsoft.Data.SqlClient encripta por defecto (Encrypt=true) y rechaza certificados no confiables,
+        /// a diferencia del viejo System.Data.SqlClient. Si la cadena no dice nada, mantengo Encrypt=false
+        /// para que sigan andando los SQL de desarrollo con certificados autofirmados.
+        /// </summary>
+        private static String WithLegacyEncryptDefault(String connectionString)
+        {
+            var builder = new SqlConnectionStringBuilder(connectionString);
+
+            if (connectionString.IndexOf("Encrypt", StringComparison.OrdinalIgnoreCase) < 0)
+                builder.Encrypt = SqlConnectionEncryptOption.Optional;
+
+            return builder.ConnectionString;
+        }
 
         public IEnumerable<T> Read<T>(String query, params KeyValuePair<String, Object>[] parameters) where T : new()
         {

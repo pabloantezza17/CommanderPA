@@ -1,10 +1,6 @@
 @echo off
 set BASEPATH=C:\buildtest\Commandr\Commandr
-set VisualStudioVersion=2022
-set VisualStudioEdition=Enterprise
 set CONFIG=Release
-set PROGRAMFILES(X86)=C:\Program Files
-set Installer = "%PROGRAMFILES(X86)%\Microsoft Visual Studio\%VisualStudioVersion%\%VisualStudioEdition%\MSBuild\Current\Bin\MSBuild.exe"
 
 rmdir /S /Q Commandr\bin
 rmdir /S /Q Release
@@ -14,7 +10,8 @@ mkdir Release
 echo -------------------------------------------
 echo Compiling
 echo -------------------------------------------
-"%PROGRAMFILES(X86)%\Microsoft Visual Studio\%VisualStudioVersion%\%VisualStudioEdition%\MSBuild\Current\Bin\MSBuild.exe" "%BASEPATH%\FullSolution.sln" /v:q /m /nr:false /p:WarningLevel=0;Configuration=%CONFIG% /clp:ErrorsOnly
+rem Compila con el SDK de .NET instalado (dotnet build); el proyecto apunta a net9.0-windows.
+dotnet build "%BASEPATH%\FullSolution.sln" -c %CONFIG% -v:q -nologo -clp:ErrorsOnly
 
 robocopy /E %BASEPATH%\Commandr\bin\Release Release
 

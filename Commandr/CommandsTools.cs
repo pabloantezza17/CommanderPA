@@ -38,7 +38,8 @@ namespace Commandr
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = this.tempFileName
+                    FileName = this.tempFileName,
+                    UseShellExecute = true
                 }
             };
 

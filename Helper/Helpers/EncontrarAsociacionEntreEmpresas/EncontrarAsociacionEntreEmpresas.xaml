@@ -6,7 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:fwk="clr-namespace:Framework.UI;assembly=Framework"
         mc:Ignorable="d"
-        TitleCaps="False"
+        TitleCharacterCasing="Normal"
         Title="Encontrar Asociacion Entre Empresas" Height="350" Width="350"
         WindowTransitionsEnabled="True"
         WindowStartupLocation="CenterScreen">

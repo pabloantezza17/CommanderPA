@@ -6,7 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:fwk="clr-namespace:Framework.UI;assembly=Framework"
         mc:Ignorable="d"
-        TitleCaps="False"
+        TitleCharacterCasing="Normal"
         ResizeMode="CanMinimize"
         Title="Helper" Height="350" Width="250"
         WindowTransitionsEnabled="False"

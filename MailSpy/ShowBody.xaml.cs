@@ -26,7 +26,7 @@ namespace MailSpy
             {
                 try
                 {
-                    Process.Start(this.AttachmentsList.SelectedValue as String);
+                    Process.Start(new ProcessStartInfo(this.AttachmentsList.SelectedValue as String) { UseShellExecute = true });
                 }
                 catch (Exception ex)
                 {

@@ -9,7 +9,7 @@
         Title="Branches" Width="240" Height="320"
         TitleCharacterCasing="Normal"
         BorderThickness="1"
-        BorderBrush="{DynamicResource AccentColorBrush}">
+        BorderBrush="{DynamicResource MahApps.Brushes.Accent}">
 
     <Grid Margin="10">
         <Grid.RowDefinitions>
@@ -60,7 +60,7 @@
             <Button x:Name="CancelButton" Content="Cancelar" Click="CancelButton_Click"
                     Width="78" Margin="0,0,6,0" />
             <Button x:Name="SaveButton" Content="Guardar" Click="SaveButton_Click"
-                    Width="78" Style="{DynamicResource AccentedSquareButtonStyle}" />
+                    Width="78" Style="{DynamicResource MahApps.Styles.Button.Square.Accent}" />
         </StackPanel>
     </Grid>
 </Controls:MetroWindow>

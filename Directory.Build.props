@@ -1,0 +1,32 @@
+<Project>
+  <!-- Configuración común a todos los proyectos de la solución. -->
+  <PropertyGroup>
+    <!-- net9 mientras se siga compilando con VS 2022 (su MSBuild 17.x no soporta el SDK de .NET 10).
+         Para pasar a net10 alcanza con cambiar esta línea, pero requiere VS 2026 o dotnet build. -->
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <!-- Mantiene la salida en bin\<Config>\ (sin la subcarpeta del framework): Commandr busca
+         Helper.exe, TestRunner\ y MailSpy\ al lado de su propio ejecutable. -->
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <SatelliteResourceLanguages>en;es</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <!-- Cada proyecto conserva su Properties\AssemblyInfo.cs: solo se generan los atributos que no
+       están ahí (entre ellos SupportedOSPlatform("windows"), que evita los avisos CA1416). -->
+  <PropertyGroup>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyTrademarkAttribute>false</GenerateAssemblyTrademarkAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+    <GenerateNeutralResourcesLanguageAttribute>false</GenerateNeutralResourcesLanguageAttribute>
+  </PropertyGroup>
+</Project>

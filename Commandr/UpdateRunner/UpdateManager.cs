@@ -302,6 +302,7 @@ namespace Commandr.UpdateRunner
                 {
                     FileName = testRunner,
                     Arguments = this.currentBranch,
+                    UseShellExecute = true,
                     WorkingDirectory = Path.GetDirectoryName(testRunner)
                 });
 

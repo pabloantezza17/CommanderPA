@@ -191,19 +191,19 @@ namespace Commandr
                 Make(scripts, "Stop", NewFileAction("Stop Scheduler", () => this.StopScheduler(), FileCommandType.Bat)),
                 Make(scripts, "Restart", NewFileAction("Reset IIS", () => this.ResetIIS(), FileCommandType.Executable)),
 
-                Make(solutions, "VisualStudio", NewFileAction("Db", BasePath + @"\src\Db\FyO.Db.sln", FileCommandType.Solution )),
-                Make(solutions, "VisualStudio", NewFileAction("Fwk", BasePath + @"\src\Fwk\Neoris.FWK.sln",  FileCommandType.Solution)),
-                Make(solutions, "VisualStudio", NewFileAction("Apc", BasePath + @"\src\FyO.Cor\FyO.Cor.Apc.sln",FileCommandType.Solution)),
-                Make(solutions, "VisualStudio", NewFileAction("Apl", BasePath + @"\src\FyO.Cor\FyO.Cor.Apl.sln",FileCommandType.Solution)),
-                Make(solutions, "VisualStudio", NewFileAction("Con", BasePath + @"\src\FyO.Cor\FyO.Cor.Con.sln",FileCommandType.Solution)),
-                Make(solutions, "VisualStudio", NewFileAction("Doc", BasePath + @"\src\FyO.Cor\FyO.Cor.Doc.sln",FileCommandType.Solution)),
-                Make(solutions, "VisualStudio", NewFileAction("Eai", BasePath + @"\src\FyO.Cor\FyO.Cor.Eai.sln",FileCommandType.Solution)),
-                Make(solutions, "VisualStudio", NewFileAction("Fac", BasePath + @"\src\FyO.Cor\FyO.Cor.Fac.sln",FileCommandType.Solution)),
-                Make(solutions, "VisualStudio", NewFileAction("Int", BasePath + @"\src\FyO.Cor\FyO.Cor.Int.sln",FileCommandType.Solution)),
-                Make(solutions, "VisualStudio", NewFileAction("Log", BasePath + @"\src\FyO.Cor\FyO.Cor.Log.sln",FileCommandType.Solution)),
-                Make(solutions, "VisualStudio", NewFileAction("Mae", BasePath + @"\src\FyO.Cor\FyO.Cor.Mae.sln",FileCommandType.Solution)),
-                Make(solutions, "VisualStudio", NewFileAction("Rie", BasePath + @"\src\FyO.Cor\FyO.Cor.Rie.sln",FileCommandType.Solution)),
-                Make(solutions, "VisualStudio", NewFileAction("AppCore", BasePath + @"\src\AppCore\FyO.AppCore.sln",FileCommandType.Solution)),
+                Make(solutions, "MicrosoftVisualStudio", NewFileAction("Db", BasePath + @"\src\Db\FyO.Db.sln", FileCommandType.Solution )),
+                Make(solutions, "MicrosoftVisualStudio", NewFileAction("Fwk", BasePath + @"\src\Fwk\Neoris.FWK.sln",  FileCommandType.Solution)),
+                Make(solutions, "MicrosoftVisualStudio", NewFileAction("Apc", BasePath + @"\src\FyO.Cor\FyO.Cor.Apc.sln",FileCommandType.Solution)),
+                Make(solutions, "MicrosoftVisualStudio", NewFileAction("Apl", BasePath + @"\src\FyO.Cor\FyO.Cor.Apl.sln",FileCommandType.Solution)),
+                Make(solutions, "MicrosoftVisualStudio", NewFileAction("Con", BasePath + @"\src\FyO.Cor\FyO.Cor.Con.sln",FileCommandType.Solution)),
+                Make(solutions, "MicrosoftVisualStudio", NewFileAction("Doc", BasePath + @"\src\FyO.Cor\FyO.Cor.Doc.sln",FileCommandType.Solution)),
+                Make(solutions, "MicrosoftVisualStudio", NewFileAction("Eai", BasePath + @"\src\FyO.Cor\FyO.Cor.Eai.sln",FileCommandType.Solution)),
+                Make(solutions, "MicrosoftVisualStudio", NewFileAction("Fac", BasePath + @"\src\FyO.Cor\FyO.Cor.Fac.sln",FileCommandType.Solution)),
+                Make(solutions, "MicrosoftVisualStudio", NewFileAction("Int", BasePath + @"\src\FyO.Cor\FyO.Cor.Int.sln",FileCommandType.Solution)),
+                Make(solutions, "MicrosoftVisualStudio", NewFileAction("Log", BasePath + @"\src\FyO.Cor\FyO.Cor.Log.sln",FileCommandType.Solution)),
+                Make(solutions, "MicrosoftVisualStudio", NewFileAction("Mae", BasePath + @"\src\FyO.Cor\FyO.Cor.Mae.sln",FileCommandType.Solution)),
+                Make(solutions, "MicrosoftVisualStudio", NewFileAction("Rie", BasePath + @"\src\FyO.Cor\FyO.Cor.Rie.sln",FileCommandType.Solution)),
+                Make(solutions, "MicrosoftVisualStudio", NewFileAction("AppCore", BasePath + @"\src\AppCore\FyO.AppCore.sln",FileCommandType.Solution)),
 
                 Make(tools, "TestTube", NewFileAction("TestRunner", Directory.GetCurrentDirectory() + @"\TestRunner\TestRunner.exe", FileCommandType.ExecutableWithArguments)),
                 Make(tools, "Toolbox", NewFileAction("Helper", Directory.GetCurrentDirectory() + @"\Helper.exe", FileCommandType.ExecutableWithArguments)),
@@ -414,7 +414,7 @@ namespace Commandr
             {
                 if (!String.IsNullOrEmpty(fileCommand.Command))
                 {
-                    ProcessStartInfo info = new ProcessStartInfo();
+                    ProcessStartInfo info = new ProcessStartInfo { UseShellExecute = true };  // abre .sln y .bat por asociación
 
                     var command = info.FileName = String.Format(fileCommand.Command, this.CurrentBranch);
 

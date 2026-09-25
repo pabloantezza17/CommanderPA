@@ -30,6 +30,7 @@ namespace Commandr
             var processInfo = new ProcessStartInfo
             {
                 FileName = Path.Combine(Directory.GetCurrentDirectory(), "7za.exe"),
+                UseShellExecute = true,
                 Arguments = String.Format("x {0} -o{1}", Path.Combine(Configuration.Default.InstallationPath, latest), tempPath)
             };
 
@@ -40,7 +41,7 @@ namespace Commandr
 
             File.WriteAllText(Path.Combine(tempPath, Checker.LastVersionFile), latest);
 
-            Process.Start(Path.Combine(tempPath, "install.bat"), Directory.GetCurrentDirectory());
+            Process.Start(new ProcessStartInfo(Path.Combine(tempPath, "install.bat"), Directory.GetCurrentDirectory()) { UseShellExecute = true });
 
             Environment.Exit(0);
         }
