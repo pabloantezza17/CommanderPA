@@ -28,6 +28,14 @@ namespace Commandr
             //this.CheckForUpdates();
         }
 
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+
+            // Esquinas redondeadas y borde del mismo tono que la barra de título.
+            RoundedWindow.Apply(this, System.Windows.Media.Color.FromRgb(0x23, 0x28, 0x33));
+        }
+
         protected override void OnClosed(EventArgs e)
         {
             this.trayIcon.Dispose();

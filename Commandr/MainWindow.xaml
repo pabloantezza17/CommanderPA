@@ -8,149 +8,320 @@
         WindowStyle="ToolWindow" ResizeMode="CanResizeWithGrip"
         ShowMaxRestoreButton="False"
         Title="Commandr"
-        Width="300" Height="460"
-        MinWidth="240" MinHeight="280" MaxHeight="700"
+        Width="310" Height="500"
+        MinWidth="250" MinHeight="300" MaxHeight="760"
         TitleCharacterCasing="Normal"
-        BorderThickness="1"
-        BorderBrush="{DynamicResource MahApps.Brushes.Accent}">
+        FontFamily="Segoe UI"
+        Background="#FFEEF1F5"
+        WindowTitleBrush="#FF232833"
+        NonActiveWindowTitleBrush="#FF3A4150"
+        BorderThickness="0">
 
+    <!-- Misma paleta que las ventanas de Build / Update / Scripts. -->
     <Controls:MetroWindow.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+
+        <SolidColorBrush x:Key="TextBrush" Color="#FF1F2430" />
+        <SolidColorBrush x:Key="MutedBrush" Color="#FF98A0AD" />
+        <SolidColorBrush x:Key="IconBrush" Color="#FF5A6272" />
+        <SolidColorBrush x:Key="BorderBrush" Color="#FFE4E8EE" />
+        <SolidColorBrush x:Key="TealBrush" Color="#FF12A4A4" />
+        <SolidColorBrush x:Key="HoverBrush" Color="#FFF4F6F9" />
+        <SolidColorBrush x:Key="SelectedBrush" Color="#FFE3F4F4" />
+
+        <!-- Tarjeta blanca redondeada -->
+        <Style x:Key="Card" TargetType="Border">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="10" />
+        </Style>
+
+        <!-- Botón chato con ícono (editar branches) -->
+        <Style x:Key="IconButton" TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource IconBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Focusable" Value="False" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="b" Background="Transparent" CornerRadius="6"
+                                Width="28" Height="28">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="b" Property="Background" Value="{StaticResource SelectedBrush}" />
+                                <Setter Property="Foreground" Value="{StaticResource TealBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Fila de comando: hover suave; seleccionada con fondo teal claro y barrita a la izquierda -->
+        <Style x:Key="CommandItem" TargetType="ListBoxItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Margin" Value="0,1" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="b" Background="Transparent" CornerRadius="7" Padding="0,5,8,5">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="4" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Border x:Name="bar" Grid.Column="0" Width="3" CornerRadius="1.5"
+                                        Margin="0,1" Background="{StaticResource TealBrush}"
+                                        Visibility="Hidden" />
+                                <ContentPresenter Grid.Column="1" Margin="6,0,0,0" />
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="b" Property="Background" Value="{StaticResource HoverBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="b" Property="Background" Value="{StaticResource SelectedBrush}" />
+                                <Setter TargetName="bar" Property="Visibility" Value="Visible" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!-- Buscador: la cruz de limpiar aparece solo cuando hay texto -->
+        <Style x:Key="SearchBoxStyle" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="Controls:TextBoxHelper.ClearTextButton" Value="True" />
+            <Style.Triggers>
+                <Trigger Property="Controls:TextBoxHelper.HasText" Value="False">
+                    <Setter Property="Controls:TextBoxHelper.ClearTextButton" Value="False" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Scrollbar fina y redondeada, sin flechas -->
+        <Style x:Key="SlimThumb" TargetType="Thumb">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Border x:Name="t" CornerRadius="3" Background="#FFD3D8E0" />
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="t" Property="Background" Value="#FFB3BAC5" />
+                            </Trigger>
+                            <Trigger Property="IsDragging" Value="True">
+                                <Setter TargetName="t" Property="Background" Value="{StaticResource TealBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SlimScrollBar" TargetType="ScrollBar">
+            <Setter Property="Width" Value="6" />
+            <Setter Property="MinWidth" Value="6" />
+            <Setter Property="Margin" Value="2,4,2,4" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Track x:Name="PART_Track" IsDirectionReversed="True">
+                            <Track.Thumb>
+                                <Thumb Style="{StaticResource SlimThumb}" />
+                            </Track.Thumb>
+                        </Track>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Controls:MetroWindow.Resources>
 
-    <Grid Margin="10,8,10,4">
+    <Grid Margin="10,10,10,6">
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <!-- Branch selector -->
-        <DockPanel Grid.Row="0" LastChildFill="True" Margin="0,0,0,8">
-            <TextBlock DockPanel.Dock="Left" Text="Branch"
-                       VerticalAlignment="Center" Margin="0,0,8,0"
-                       Opacity="0.7" FontWeight="SemiBold" />
-            <Button DockPanel.Dock="Right" x:Name="ManageBranchesButton"
-                    Click="ManageBranchesButton_Click"
-                    Width="28" Margin="6,0,0,0" ToolTip="Administrar branches">
-                <iconPacks:PackIconMaterial Kind="Pencil" Width="11" Height="11" />
-            </Button>
-            <ComboBox
-                IsEditable="True"
-                ItemsSource="{Binding Path=Branches}"
-                Text="{Binding Path=CurrentBranch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                Controls:TextBoxHelper.Watermark="Branch o 'Todas'"
-                VerticalAlignment="Center" />
-        </DockPanel>
+        <Border Grid.Row="0" Style="{StaticResource Card}" Padding="10,3,4,3" Margin="0,0,0,8">
+            <DockPanel LastChildFill="True">
+                <iconPacks:PackIconMaterial DockPanel.Dock="Left" Kind="SourceBranch"
+                                            Width="14" Height="14" Margin="0,0,8,0"
+                                            VerticalAlignment="Center"
+                                            Foreground="{StaticResource TealBrush}" />
+                <Button DockPanel.Dock="Right" x:Name="ManageBranchesButton"
+                        Click="ManageBranchesButton_Click"
+                        Style="{StaticResource IconButton}"
+                        ToolTip="Administrar branches">
+                    <iconPacks:PackIconMaterial Kind="Pencil" Width="12" Height="12" />
+                </Button>
+                <ComboBox
+                    IsEditable="True"
+                    ItemsSource="{Binding Path=Branches}"
+                    Text="{Binding Path=CurrentBranch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    Controls:TextBoxHelper.Watermark="Branch o 'Todas'"
+                    Background="Transparent" BorderThickness="0"
+                    Foreground="{StaticResource TextBrush}" FontSize="13" FontWeight="SemiBold"
+                    Controls:ControlsHelper.FocusBorderThickness="0"
+                    Controls:ControlsHelper.MouseOverBorderBrush="Transparent"
+                    VerticalAlignment="Center" />
+            </DockPanel>
+        </Border>
 
         <!-- Search box -->
-        <TextBox x:Name="SearchBox" Grid.Row="1"
-                 Margin="0,0,0,6"
-                 KeyDown="SearchBox_KeyDown"
-                 Text="{Binding Path=SearchText, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                 Controls:TextBoxHelper.Watermark="Buscar comando..."
-                 Controls:TextBoxHelper.ClearTextButton="True"
-                 Controls:TextBoxHelper.SelectAllOnFocus="True" />
-
-        <Separator Grid.Row="2" Margin="0,0,0,4" Opacity="0.4" />
+        <Border Grid.Row="1" Style="{StaticResource Card}" Padding="10,1,2,1" Margin="0,0,0,8">
+            <DockPanel LastChildFill="True">
+                <iconPacks:PackIconMaterial DockPanel.Dock="Left" Kind="Magnify"
+                                            Width="15" Height="15" Margin="0,0,6,0"
+                                            VerticalAlignment="Center"
+                                            Foreground="{StaticResource MutedBrush}" />
+                <TextBox x:Name="SearchBox"
+                         Style="{StaticResource SearchBoxStyle}"
+                         KeyDown="SearchBox_KeyDown"
+                         Text="{Binding Path=SearchText, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                         Controls:TextBoxHelper.Watermark="Buscar comando..."
+                         Controls:TextBoxHelper.SelectAllOnFocus="True"
+                         Background="Transparent" BorderThickness="0"
+                         Foreground="{StaticResource TextBrush}" FontSize="13"
+                         Controls:ControlsHelper.FocusBorderThickness="0"
+                         Controls:ControlsHelper.MouseOverBorderBrush="Transparent"
+                         VerticalContentAlignment="Center" />
+            </DockPanel>
+        </Border>
 
         <!-- Commands -->
-        <ListBox
-            x:Name="CommandsList"
-            PreviewMouseRightButtonDown="CommandsList_MouseRightButtonDown"
-            MouseDoubleClick="CommandsList_MouseDoubleClick"
-            KeyDown="CommandsList_KeyDown"
-            Grid.Row="3"
-            ItemsSource="{Binding Path=ActionsView}"
-            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-            ScrollViewer.VerticalScrollBarVisibility="Auto"
-            ScrollViewer.CanContentScroll="False"
-            VirtualizingPanel.ScrollUnit="Pixel"
-            HorizontalContentAlignment="Stretch">
+        <Border Grid.Row="2" Style="{StaticResource Card}" Padding="4,2,2,4">
+            <Grid>
+                <ListBox
+                    x:Name="CommandsList"
+                    PreviewMouseRightButtonDown="CommandsList_MouseRightButtonDown"
+                    MouseDoubleClick="CommandsList_MouseDoubleClick"
+                    KeyDown="CommandsList_KeyDown"
+                    ItemsSource="{Binding Path=ActionsView}"
+                    ItemContainerStyle="{StaticResource CommandItem}"
+                    Background="Transparent" BorderThickness="0"
+                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                    ScrollViewer.VerticalScrollBarVisibility="Auto"
+                    ScrollViewer.CanContentScroll="False"
+                    VirtualizingPanel.ScrollUnit="Pixel"
+                    HorizontalContentAlignment="Stretch">
 
-            <ListBox.GroupStyle>
-                <GroupStyle>
-                    <GroupStyle.HeaderTemplate>
+                    <ListBox.Resources>
+                        <Style TargetType="ScrollBar" BasedOn="{StaticResource SlimScrollBar}" />
+                    </ListBox.Resources>
+
+                    <ListBox.GroupStyle>
+                        <GroupStyle>
+                            <GroupStyle.HeaderTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Margin="8,10,0,4">
+                                        <iconPacks:PackIconMaterial Width="11" Height="11"
+                                                VerticalAlignment="Center" Margin="0,0,6,0"
+                                                Foreground="{StaticResource TealBrush}">
+                                            <iconPacks:PackIconMaterial.Style>
+                                                <Style TargetType="iconPacks:PackIconMaterial">
+                                                    <Setter Property="Kind" Value="Folder" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Path=Name}" Value="Scripts">
+                                                            <Setter Property="Kind" Value="ScriptText" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Path=Name}" Value="Soluciones">
+                                                            <Setter Property="Kind" Value="MicrosoftVisualStudio" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Path=Name}" Value="Herramientas">
+                                                            <Setter Property="Kind" Value="Toolbox" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </iconPacks:PackIconMaterial.Style>
+                                        </iconPacks:PackIconMaterial>
+                                        <TextBlock Text="{Binding Path=Name}"
+                                                   Typography.Capitals="AllSmallCaps"
+                                                   FontSize="12" FontWeight="SemiBold"
+                                                   Foreground="{StaticResource MutedBrush}"
+                                                   VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </GroupStyle.HeaderTemplate>
+                        </GroupStyle>
+                    </ListBox.GroupStyle>
+
+                    <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal" Margin="2,6,0,2">
-                                <iconPacks:PackIconMaterial Width="11" Height="11"
-                                        VerticalAlignment="Center" Margin="0,0,5,0"
-                                        Foreground="{DynamicResource MahApps.Brushes.Accent}">
-                                    <iconPacks:PackIconMaterial.Style>
-                                        <Style TargetType="iconPacks:PackIconMaterial">
-                                            <Setter Property="Kind" Value="Folder" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Path=Name}" Value="Scripts">
-                                                    <Setter Property="Kind" Value="ScriptText" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Path=Name}" Value="Soluciones">
-                                                    <Setter Property="Kind" Value="MicrosoftVisualStudio" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Path=Name}" Value="Herramientas">
-                                                    <Setter Property="Kind" Value="Toolbox" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </iconPacks:PackIconMaterial.Style>
-                                </iconPacks:PackIconMaterial>
-                                <TextBlock Text="{Binding Path=Name}"
-                                           FontSize="10" FontWeight="Bold"
-                                           Foreground="{DynamicResource MahApps.Brushes.Accent}"
-                                           Opacity="0.85" VerticalAlignment="Center" />
-                            </StackPanel>
+                            <Grid MinHeight="20" ToolTip="{Binding Path=SecondaryActionHint}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <iconPacks:PackIconMaterial x:Name="icon" Grid.Column="0"
+                                       Kind="{Binding Path=IconKind}"
+                                       Width="15" Height="15" Margin="0,0,10,0"
+                                       VerticalAlignment="Center"
+                                       Foreground="{StaticResource IconBrush}" />
+
+                                <TextBlock Grid.Column="1" Text="{Binding Path=Name}"
+                                           FontSize="13"
+                                           VerticalAlignment="Center"
+                                           TextTrimming="CharacterEllipsis" />
+
+                                <!-- Indicador de acción secundaria (clic derecho) -->
+                                <iconPacks:PackIconMaterial Grid.Column="2"
+                                       Kind="SubdirectoryArrowLeft"
+                                       Width="11" Height="11" Margin="6,0,0,0"
+                                       VerticalAlignment="Center"
+                                       Foreground="{StaticResource MutedBrush}"
+                                       ToolTip="{Binding Path=SecondaryActionHint}"
+                                       Visibility="{Binding Path=HasSecondaryAction,
+                                                    Converter={StaticResource BoolToVisibility}}" />
+                            </Grid>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                                    <Setter TargetName="icon" Property="Foreground" Value="{StaticResource TealBrush}" />
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
                         </DataTemplate>
-                    </GroupStyle.HeaderTemplate>
-                </GroupStyle>
-            </ListBox.GroupStyle>
+                    </ListBox.ItemTemplate>
+                </ListBox>
 
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Grid MinHeight="24" Margin="0,2" ToolTip="{Binding Path=SecondaryActionHint}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
+                <!-- Empty-search state -->
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                            IsHitTestVisible="False">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=Items.Count, ElementName=CommandsList}" Value="0">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <iconPacks:PackIconMaterial Kind="MagnifyClose" Width="26" Height="26"
+                                                HorizontalAlignment="Center"
+                                                Foreground="{StaticResource BorderBrush}" />
+                    <TextBlock Text="Sin resultados" Margin="0,6,0,0"
+                               HorizontalAlignment="Center"
+                               Foreground="{StaticResource MutedBrush}" />
+                </StackPanel>
+            </Grid>
+        </Border>
 
-                        <!-- Vector icon: inherits foreground, so it inverts on selection -->
-                        <iconPacks:PackIconMaterial Grid.Column="0"
-                               Kind="{Binding Path=IconKind}"
-                               Width="15" Height="15" Margin="2,0,9,0"
-                               VerticalAlignment="Center" />
-
-                        <TextBlock Grid.Column="1" Text="{Binding Path=Name}"
-                                   VerticalAlignment="Center"
-                                   TextTrimming="CharacterEllipsis" />
-
-                        <!-- Secondary-action indicator -->
-                        <iconPacks:PackIconMaterial Grid.Column="2"
-                               Kind="SubdirectoryArrowLeft"
-                               Width="12" Height="12" Margin="6,0,2,0"
-                               VerticalAlignment="Center" Opacity="0.55"
-                               ToolTip="{Binding Path=SecondaryActionHint}"
-                               Visibility="{Binding Path=HasSecondaryAction,
-                                            Converter={StaticResource BoolToVisibility}}" />
-                    </Grid>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-
-        <!-- Empty-search state -->
-        <TextBlock Grid.Row="3" Text="Sin resultados"
-                   HorizontalAlignment="Center" VerticalAlignment="Center"
-                   IsHitTestVisible="False" Opacity="0.5" FontStyle="Italic">
-            <TextBlock.Style>
-                <Style TargetType="TextBlock">
-                    <Setter Property="Visibility" Value="Collapsed" />
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Path=Items.Count, ElementName=CommandsList}" Value="0">
-                            <Setter Property="Visibility" Value="Visible" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </TextBlock.Style>
+        <!-- Atajos -->
+        <TextBlock Grid.Row="3" Margin="4,6,0,0" FontSize="11"
+                   Foreground="{StaticResource MutedBrush}"
+                   TextTrimming="CharacterEllipsis">
+            <Run Text="Enter" FontWeight="SemiBold" /><Run Text=" ejecutar   ·   " />
+            <Run Text="Clic derecho" FontWeight="SemiBold" /><Run Text=" acción secundaria" />
         </TextBlock>
 
     </Grid>
