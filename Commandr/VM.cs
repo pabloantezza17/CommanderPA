@@ -340,8 +340,11 @@ namespace Commandr
 
         private void ResetIIS()
         {
-            // iisreset se resuelve por PATH (System32); no es un .bat.
-            this.RunScript("Reset IIS", "iisreset", isBatch: false, successText: "IIS reiniciado");
+            // Hace el iisreset, frena el sitio de BCR y deja activo el Default Web Site (FyO).
+            // Junto al ejecutable (no el directorio actual, que depende de cómo se lanzó el Commander).
+            var path = Path.Combine(AppContext.BaseDirectory, "reset_iis.bat");
+
+            this.RunScript("Reset IIS", path, isBatch: true, successText: "IIS reiniciado (FyO activo, BCR detenido)");
         }
 
         /// <summary>Abre la ventana de ejecución que corre el comando y muestra su salida en vivo.</summary>
